@@ -1,0 +1,133 @@
+<div class="home">
+
+  <!-- Banner Slider -->
+  <section class="banner-slider">
+    <div class="banner-slider__track">
+      <div class="banner-slide"
+           *ngFor="let banner of banners; let i = index"
+           [class.active]="currentBanner() === i"
+           [style.background]="banner.bg">
+        <div class="container banner-slide__inner">
+          <div class="banner-slide__content">
+            <h1 class="banner-slide__title" [style.color]="banner.accent">
+              {{ banner.title }}
+            </h1>
+            <p class="banner-slide__sub">{{ banner.subtitle }}</p>
+            <a class="banner-slide__btn"
+               [routerLink]="['/products']"
+               [queryParams]="{category: banner.slug}"
+               [style.background]="banner.accent">
+              {{ banner.btn }}
+            </a>
+          </div>
+          <div class="banner-slide__emoji">{{ banner.emoji }}</div>
+        </div>
+      </div>
+    </div>
+    <!-- Dots -->
+    <div class="banner-slider__dots">
+      <button *ngFor="let banner of banners; let i = index"
+              class="banner-slider__dot"
+              [class.active]="currentBanner() === i"
+              (click)="setBanner(i)">
+      </button>
+    </div>
+  </section>
+
+  <!-- Category Pills -->
+  <section class="cat-pills">
+    <div class="container cat-pills__inner">
+      <a class="cat-pill"
+         *ngFor="let cat of categories"
+         [routerLink]="['/products']"
+         [queryParams]="{category: cat.slug}"
+         [style.background]="cat.color"
+         [style.border-color]="cat.border">
+        <span class="cat-pill__emoji">{{ cat.emoji }}</span>
+        <span class="cat-pill__name">{{ cat.name }}</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Amazon Style Widgets -->
+  <section class="widgets">
+    <div class="container widgets__grid">
+      <div class="widget" *ngFor="let widget of widgets">
+        <div class="widget__header">
+          <h2 class="widget__title">{{ widget.title }}</h2>
+          <a class="widget__link"
+             [routerLink]="['/products']"
+             [queryParams]="{category: widget.slug}">
+            See all
+          </a>
+        </div>
+        <div class="widget__products">
+          <a class="widget-product"
+             *ngFor="let product of widget.products"
+             [routerLink]="['/products', product.id]">
+            <div class="widget-product__img">{{ product.emoji }}</div>
+            <p class="widget-product__name">{{ product.name }}</p>
+            <p class="widget-product__price">{{ currencySymbol }} {{ product.price | number }}</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Products Scroller -->
+  <section class="featured">
+    <div class="container">
+      <div class="featured__header">
+        <h2 class="featured__title">Popular Products</h2>
+        <a routerLink="/products" class="featured__link">View all</a>
+      </div>
+      <div class="featured__scroller">
+        <div class="product-card" *ngFor="let product of featuredProducts">
+          <div class="product-card__img">
+            <span>{{ product.emoji }}</span>
+            <span class="product-card__badge"
+                  *ngIf="product.badge"
+                  [class.badge--sale]="product.badge === 'Sale'"
+                  [class.badge--new]="product.badge === 'New'"
+                  [class.badge--best]="product.badge === 'Best Seller'">
+              {{ product.badge }}
+            </span>
+          </div>
+          <div class="product-card__body">
+            <p class="product-card__category">{{ product.category }}</p>
+            <p class="product-card__name">{{ product.name }}</p>
+            <div class="product-card__price">
+              <span class="product-card__price-now">
+                {{ currencySymbol }} {{ product.price | number }}
+              </span>
+              <span class="product-card__price-old" *ngIf="product.originalPrice">
+                {{ currencySymbol }} {{ product.originalPrice | number }}
+              </span>
+            </div>
+            <button class="product-card__btn" (click)="addToCart(product)">
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wholesale Banner -->
+  <section class="wholesale-banner">
+    <div class="container wholesale-banner__inner">
+      <div>
+        <span class="wholesale-banner__tag">For Business Buyers</span>
+        <h2 class="wholesale-banner__title">Get Wholesale Prices</h2>
+        <p class="wholesale-banner__desc">
+          Register as a wholesale customer and unlock exclusive bulk pricing across all categories.
+        </p>
+        <a routerLink="/auth/register" class="wholesale-banner__btn">Register as Wholesale</a>
+      </div>
+      <div class="wholesale-banner__emojis">
+        <span>🍳</span><span>🪣</span><span>🎁</span><span>💡</span>
+      </div>
+    </div>
+  </section>
+
+</div>

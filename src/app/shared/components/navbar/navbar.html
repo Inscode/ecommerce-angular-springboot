@@ -1,0 +1,112 @@
+<header class="header">
+  <!-- Top navbar -->
+  <div class="navbar">
+    <div class="navbar__inner">
+      <!-- Logo -->
+      <a routerLink="/" class="navbar__brand">
+        <span class="navbar__brand-icon">G</span>
+        <div class="navbar__brand-text">
+          <span class="navbar__brand-name">Ghanim</span>
+          <span class="navbar__brand-sub">Enterprises</span>
+        </div>
+      </a>
+
+      <!-- Search bar -->
+      <div class="navbar__search">
+        <select class="navbar__search-select" (change)="onCategoryChange($event)">
+          <option value="">All</option>
+          <option *ngFor="let cat of categories.slice(1, 8)" [value]="cat.slug">
+            {{ cat.name }}
+          </option>
+        </select>
+        <div class="navbar__search-divider"></div>
+        <input
+          class="navbar__search-input"
+          type="text"
+          placeholder="Search products..."
+          [value]="searchQuery()"
+          (input)="onSearchInput($event)"
+          (keyup.enter)="onSearch()"
+        />
+        <button class="navbar__search-btn" (click)="onSearch()">
+          <svg
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="M21 21l-4.35-4.35" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Right actions -->
+      <div class="navbar__actions">
+        <a routerLink="/auth/login" class="navbar__action">
+          <span class="navbar__action-top">Hello, Sign in</span>
+          <span class="navbar__action-bottom">Account & Lists</span>
+        </a>
+        <a routerLink="/orders" class="navbar__action">
+          <span class="navbar__action-top">Returns</span>
+          <span class="navbar__action-bottom">& Orders</span>
+        </a>
+        <a routerLink="/cart" class="navbar__cart">
+          <div class="navbar__cart-icon">
+            <svg
+              width="32"
+              height="32"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              viewBox="0 0 24 24"
+            >
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <path d="M16 10a4 4 0 01-8 0" />
+            </svg>
+            <span class="navbar__cart-count">{{ cartCount() }}</span>
+          </div>
+          <span class="navbar__cart-label">Cart</span>
+        </a>
+      </div>
+
+      <!-- Mobile hamburger -->
+      <button class="navbar__hamburger" (click)="toggleMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Second navbar row — category links -->
+  <nav class="subnav">
+    <div class="subnav__inner">
+      <button class="subnav__all">
+        <svg
+          width="18"
+          height="18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+        >
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+        All
+      </button>
+      <a
+        *ngFor="let cat of categories.slice(1)"
+        [routerLink]="cat.slug === 'deals' ? '/deals' : '/products'"
+        [queryParams]="cat.slug !== 'deals' ? { category: cat.slug } : {}"
+        class="subnav__link"
+        routerLinkActive="subnav__link--active"
+      >
+        {{ cat.name }}
+      </a>
+    </div>
+  </nav>
+</header>

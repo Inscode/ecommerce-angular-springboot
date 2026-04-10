@@ -1,0 +1,207 @@
+<div class="catalog">
+  <!-- Page header -->
+  <div class="catalog__header">
+    <div class="container catalog__header-inner">
+      <div>
+        <h1 class="catalog__title">
+          {{ selectedCategory() ? (categories | slice:1).find(c => c.slug === selectedCategory())?.name : 'All Products' }}
+        </h1>
+        <p class="catalog__count">{{ productList.length }} products found</p>
+      </div>
+      <div class="catalog__header-actions">
+        <!-- Search -->
+        <div class="catalog__search">
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="M21 21l-4.35-4.35" />
+          </svg>
+          <input type="text" placeholder="Search products..." (input)="setSearch($event)" />
+        </div>
+        <!-- Sort -->
+        <select class="catalog__sort" (change)="setSort($event)">
+          <option *ngFor="let opt of sortOptions" [value]="opt.value">{{ opt.label }}</option>
+        </select>
+        <!-- View mode -->
+        <div class="catalog__view-toggle">
+          <button [class.active]="viewMode() === 'grid'" (click)="setViewMode('grid')">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+            </svg>
+          </button>
+          <button [class.active]="viewMode() === 'list'" (click)="setViewMode('list')">
+            <svg
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container catalog__body">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <!-- Categories -->
+      <div class="sidebar__section">
+        <h3 class="sidebar__title">Categories</h3>
+        <ul class="sidebar__list">
+          <li *ngFor="let cat of categories">
+            <button
+              class="sidebar__item"
+              [class.active]="selectedCategory() === cat.slug"
+              (click)="setCategory(cat.slug)"
+            >
+              {{ cat.name }}
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Price Range -->
+      <div class="sidebar__section">
+        <h3 class="sidebar__title">Max Price</h3>
+        <input
+          type="range"
+          min="500"
+          max="50000"
+          step="500"
+          [value]="priceRange()"
+          (input)="setPriceRange($event)"
+          class="sidebar__range"
+        />
+        <div class="sidebar__price-display">
+          <span>Rs. 500</span>
+          <span class="sidebar__price-current">Rs. {{ priceRange() | number }}</span>
+        </div>
+      </div>
+
+      <!-- Stock filter -->
+      <div class="sidebar__section">
+        <h3 class="sidebar__title">Availability</h3>
+        <label class="sidebar__check"> <input type="checkbox" /> In Stock Only </label>
+      </div>
+
+      <!-- Badges filter -->
+      <div class="sidebar__section">
+        <h3 class="sidebar__title">Offers</h3>
+        <label class="sidebar__check"><input type="checkbox" /> On Sale</label>
+        <label class="sidebar__check"><input type="checkbox" /> New Arrivals</label>
+        <label class="sidebar__check"><input type="checkbox" /> Best Sellers</label>
+      </div>
+    </aside>
+
+    <!-- Products -->
+    <main class="products-area">
+      <!-- No results -->
+      <div class="no-results" *ngIf="productList.length === 0">
+        <span>🔍</span>
+        <h3>No products found</h3>
+        <p>Try adjusting your filters or search query</p>
+        <button class="btn-primary" (click)="setCategory('')">Clear Filters</button>
+      </div>
+
+      <!-- Grid view -->
+      <div class="products-grid" *ngIf="productList.length > 0 && viewMode() === 'grid'">
+        <div class="pcard" *ngFor="let product of productList">
+          <a [routerLink]="['/products', product.id]" class="pcard__img">
+            <span class="pcard__emoji">{{ product.emoji }}</span>
+            <span
+              class="pcard__badge"
+              *ngIf="product.badge"
+              [class.badge--sale]="product.badge === 'Sale'"
+              [class.badge--new]="product.badge === 'New'"
+              [class.badge--best]="product.badge === 'Best Seller'"
+            >
+              {{ product.badge }}
+            </span>
+            <span class="pcard__discount" *ngIf="product.originalPrice">
+              -{{ discount(product) }}%
+            </span>
+            <span class="pcard__out" *ngIf="!product.inStock">Out of Stock</span>
+          </a>
+          <div class="pcard__body">
+            <p class="pcard__category">{{ product.category | titlecase }}</p>
+            <a [routerLink]="['/products', product.id]" class="pcard__name">{{ product.name }}</a>
+            <div class="pcard__rating">
+              <span class="pcard__stars">★★★★★</span>
+              <span class="pcard__reviews">({{ product.reviews }})</span>
+            </div>
+            <div class="pcard__price">
+              <span class="pcard__price-now">Rs. {{ product.price | number }}</span>
+              <span class="pcard__price-old" *ngIf="product.originalPrice">
+                Rs. {{ product.originalPrice | number }}
+              </span>
+            </div>
+            <button class="pcard__btn" [disabled]="!product.inStock" (click)="addToCart(product)">
+              {{ product.inStock ? 'Add to Cart' : 'Out of Stock' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- List view -->
+      <div class="products-list" *ngIf="productList.length > 0 && viewMode() === 'list'">
+        <div class="lcard" *ngFor="let product of productList">
+          <a [routerLink]="['/products', product.id]" class="lcard__img">
+            <span>{{ product.emoji }}</span>
+          </a>
+          <div class="lcard__body">
+            <p class="lcard__category">{{ product.category | titlecase }}</p>
+            <a [routerLink]="['/products', product.id]" class="lcard__name">{{ product.name }}</a>
+            <div class="lcard__rating">
+              <span class="lcard__stars">★★★★★</span>
+              <span class="lcard__reviews">({{ product.reviews }} reviews)</span>
+            </div>
+            <div class="lcard__badges">
+              <span
+                class="pcard__badge"
+                *ngIf="product.badge"
+                [class.badge--sale]="product.badge === 'Sale'"
+                [class.badge--new]="product.badge === 'New'"
+                [class.badge--best]="product.badge === 'Best Seller'"
+              >
+                {{ product.badge }}
+              </span>
+              <span class="lcard__stock" [class.out]="!product.inStock">
+                {{ product.inStock ? 'In Stock' : 'Out of Stock' }}
+              </span>
+            </div>
+          </div>
+          <div class="lcard__right">
+            <div class="lcard__price">
+              <span class="lcard__price-now">Rs. {{ product.price | number }}</span>
+              <span class="lcard__price-old" *ngIf="product.originalPrice">
+                Rs. {{ product.originalPrice | number }}
+              </span>
+              <span class="lcard__discount" *ngIf="product.originalPrice">
+                Save {{ discount(product) }}%
+              </span>
+            </div>
+            <button class="pcard__btn" [disabled]="!product.inStock" (click)="addToCart(product)">
+              {{ product.inStock ? 'Add to Cart' : 'Out of Stock' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
