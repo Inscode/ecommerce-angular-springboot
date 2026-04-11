@@ -103,6 +103,7 @@
         [routerLink]="cat.slug === 'deals' ? '/deals' : '/products'"
         [queryParams]="cat.slug !== 'deals' ? { category: cat.slug } : {}"
         class="subnav__link"
+        [class.subnav__link--deals]="cat.slug === 'deals'"
         routerLinkActive="subnav__link--active"
       >
         {{ cat.name }}

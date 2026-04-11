@@ -189,13 +189,13 @@
 
   &__link {
     font-size: 0.8rem;
-    color: #007185;
+    color: var(--accent);
     text-decoration: none;
     font-weight: 500;
 
     &:hover {
       text-decoration: underline;
-      color: #c7511f;
+      color: var(--primary);
     }
   }
 
@@ -239,7 +239,7 @@
   &__price {
     font-size: 0.85rem;
     font-weight: 700;
-    color: #c7511f;
+    color: var(--primary);
   }
 }
 
@@ -263,12 +263,12 @@
 
   &__link {
     font-size: 0.85rem;
-    color: #007185;
+    color: var(--accent);
     text-decoration: none;
 
     &:hover {
       text-decoration: underline;
-      color: #c7511f;
+      color: var(--primary);
     }
   }
 
@@ -374,7 +374,7 @@
     &-now {
       font-size: 0.95rem;
       font-weight: 700;
-      color: #c7511f;
+      color: var(--primary);
     }
 
     &-old {

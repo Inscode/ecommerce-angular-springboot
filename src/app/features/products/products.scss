@@ -382,7 +382,7 @@
     overflow: hidden;
 
     &:hover {
-      color: #007185;
+      color: var(--accent);
     }
   }
 
@@ -394,12 +394,12 @@
   }
 
   &__stars {
-    color: #ffa41c;
+    color: var(--accent);
     font-size: 0.8rem;
   }
   &__reviews {
     font-size: 0.75rem;
-    color: #007185;
+    color: var(--primary);
   }
 
   &__price {
@@ -412,7 +412,7 @@
     &-now {
       font-size: 1rem;
       font-weight: 700;
-      color: #c7511f;
+      color: var(--primary);
     }
     &-old {
       font-size: 0.78rem;
@@ -502,7 +502,7 @@
     margin-bottom: 8px;
 
     &:hover {
-      color: #007185;
+      color: var(--accent);
     }
   }
 
@@ -514,12 +514,12 @@
   }
 
   &__stars {
-    color: #ffa41c;
+    color: var(--accent);
     font-size: 0.85rem;
   }
   &__reviews {
     font-size: 0.8rem;
-    color: #007185;
+    color: var(--accent);
   }
 
   &__badges {
@@ -557,7 +557,7 @@
     &-now {
       font-size: 1.1rem;
       font-weight: 700;
-      color: #c7511f;
+      color: var(--primary);
     }
     &-old {
       font-size: 0.82rem;

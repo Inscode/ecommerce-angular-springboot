@@ -303,6 +303,11 @@
     text-decoration: none;
     flex-shrink: 0;
 
+    &--deals {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
     &:hover {
       border-color: white;
       color: white;
