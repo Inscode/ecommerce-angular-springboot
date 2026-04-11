@@ -1,0 +1,242 @@
+<div class="detail" *ngIf="product()">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <div class="container breadcrumb__inner">
+      <a routerLink="/">Home</a>
+      <span>›</span>
+      <a routerLink="/products">Products</a>
+      <span>›</span>
+      <a [routerLink]="['/products']" [queryParams]="{ category: product().category }">
+        {{ product().categoryName }}
+      </a>
+      <span>›</span>
+      <span class="breadcrumb__current">{{ product().name }}</span>
+    </div>
+  </div>
+
+  <!-- Main product section -->
+  <div class="container detail__main">
+    <!-- Product image -->
+    <div class="detail__image">
+      <div class="detail__image-main">
+        <span class="detail__emoji">{{ product().emoji }}</span>
+      </div>
+      <div class="detail__badges">
+        <span class="detail__badge detail__badge--sale" *ngIf="product().badge === 'Sale'">
+          Sale
+        </span>
+        <span class="detail__badge detail__badge--new" *ngIf="product().badge === 'New'">
+          New
+        </span>
+        <span class="detail__badge detail__badge--best" *ngIf="product().badge === 'Best Seller'">
+          Best Seller
+        </span>
+      </div>
+    </div>
+
+    <!-- Product info -->
+    <div class="detail__info">
+      <p class="detail__category">{{ product().categoryName }}</p>
+      <h1 class="detail__name">{{ product().name }}</h1>
+
+      <!-- Rating -->
+      <div class="detail__rating">
+        <span class="detail__stars">★★★★★</span>
+        <span class="detail__rating-value">{{ product().rating }}</span>
+        <span class="detail__reviews">({{ product().reviews }} reviews)</span>
+      </div>
+
+      <!-- Price -->
+      <div class="detail__price">
+        <span class="detail__price-now"> {{ currencySymbol }} {{ product().price | number }} </span>
+        <span class="detail__price-old" *ngIf="product().originalPrice">
+          {{ currencySymbol }} {{ product().originalPrice | number }}
+        </span>
+        <span class="detail__price-save" *ngIf="discountPercent">
+          Save {{ discountPercent }}%
+        </span>
+      </div>
+
+      <!-- Stock -->
+      <div class="detail__stock">
+        <span class="detail__stock-in" *ngIf="product().inStock"> ✓ In Stock — Ready to ship </span>
+        <span class="detail__stock-out" *ngIf="!product().inStock"> ✗ Out of Stock </span>
+      </div>
+
+      <!-- Short description -->
+      <p class="detail__desc">{{ product().description }}</p>
+
+      <!-- Quantity -->
+      <div class="detail__qty" *ngIf="product().inStock">
+        <span class="detail__qty-label">Quantity</span>
+        <div class="detail__qty-control">
+          <button (click)="decreaseQty()" [disabled]="quantity() === 1">−</button>
+          <span>{{ quantity() }}</span>
+          <button (click)="increaseQty()">+</button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="detail__actions" *ngIf="product().inStock">
+        <button class="detail__btn-cart" (click)="addToCart()">
+          <svg
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 01-8 0" />
+          </svg>
+          Add to Cart
+        </button>
+        <button class="detail__btn-wish">
+          <svg
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"
+            />
+          </svg>
+          Wishlist
+        </button>
+      </div>
+
+      <!-- Delivery info -->
+      <div class="detail__delivery">
+        <div class="detail__delivery-item">
+          <svg
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <rect x="1" y="3" width="15" height="13" />
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+            <circle cx="5.5" cy="18.5" r="2.5" />
+            <circle cx="18.5" cy="18.5" r="2.5" />
+          </svg>
+          <span>Free delivery on orders over Rs. 5,000</span>
+        </div>
+        <div class="detail__delivery-item">
+          <svg
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          <span>Delivery across Sri Lanka</span>
+        </div>
+        <div class="detail__delivery-item">
+          <svg
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <polyline points="23 4 23 10 17 10" />
+            <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
+          </svg>
+          <span>Easy 7 day returns</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="container detail__tabs-section">
+    <div class="detail__tabs">
+      <button
+        class="detail__tab"
+        [class.active]="selectedTab() === 'description'"
+        (click)="setTab('description')"
+      >
+        Description
+      </button>
+      <button
+        class="detail__tab"
+        [class.active]="selectedTab() === 'specs'"
+        (click)="setTab('specs')"
+      >
+        Specifications
+      </button>
+      <button
+        class="detail__tab"
+        [class.active]="selectedTab() === 'reviews'"
+        (click)="setTab('reviews')"
+      >
+        Reviews ({{ product().reviews }})
+      </button>
+    </div>
+
+    <!-- Description tab -->
+    <div class="detail__tab-content" *ngIf="selectedTab() === 'description'">
+      <p>{{ product().description }}</p>
+    </div>
+
+    <!-- Specs tab -->
+    <div class="detail__tab-content" *ngIf="selectedTab() === 'specs'">
+      <table class="detail__specs-table">
+        <tr *ngFor="let spec of product().specs">
+          <td class="detail__spec-label">{{ spec.label }}</td>
+          <td class="detail__spec-value">{{ spec.value }}</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Reviews tab -->
+    <div class="detail__tab-content" *ngIf="selectedTab() === 'reviews'">
+      <div class="detail__reviews-summary">
+        <div class="detail__reviews-score">
+          <span class="detail__reviews-big">{{ product().rating }}</span>
+          <span class="detail__stars">★★★★★</span>
+          <span class="detail__reviews-count">{{ product().reviews }} reviews</span>
+        </div>
+        <p class="detail__reviews-note">
+          Detailed reviews will be available once customers can submit them after purchase.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related products -->
+  <div class="container detail__related" *ngIf="relatedProducts.length > 0">
+    <h2 class="detail__related-title">Related Products</h2>
+    <div class="detail__related-grid">
+      <a class="rcard" *ngFor="let rp of relatedProducts" [routerLink]="['/products', rp.id]">
+        <div class="rcard__img">{{ rp.emoji }}</div>
+        <div class="rcard__body">
+          <p class="rcard__name">{{ rp.name }}</p>
+          <p class="rcard__price">{{ currencySymbol }} {{ rp.price | number }}</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Not found -->
+<div class="detail-notfound" *ngIf="!product()">
+  <div class="container">
+    <span>🔍</span>
+    <h2>Product not found</h2>
+    <p>The product you are looking for does not exist or has been removed.</p>
+    <a routerLink="/products" class="btn-primary">Browse All Products</a>
+  </div>
+</div>
