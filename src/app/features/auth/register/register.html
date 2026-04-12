@@ -1,0 +1,319 @@
+<div class="auth-page">
+  <div class="auth-card auth-card--wide">
+    <!-- Brand -->
+    <div class="auth-card__brand">
+      <a routerLink="/" class="auth-card__logo">
+        <span class="auth-card__logo-icon">G</span>
+        <div>
+          <span class="auth-card__logo-name">Ghanim</span>
+          <span class="auth-card__logo-sub">Enterprises</span>
+        </div>
+      </a>
+      <h1 class="auth-card__title">Create your account</h1>
+      <p class="auth-card__subtitle">Join thousands of customers shopping with us</p>
+    </div>
+
+    <!-- Account type selector -->
+    <div class="account-type">
+      <button
+        class="account-type__btn"
+        [class.active]="accountType() === 'retail'"
+        (click)="setAccountType('retail')"
+      >
+        <span class="account-type__icon">🛒</span>
+        <span class="account-type__label">Retail Customer</span>
+        <span class="account-type__desc">Personal shopping</span>
+      </button>
+      <button
+        class="account-type__btn"
+        [class.active]="accountType() === 'wholesale'"
+        (click)="setAccountType('wholesale')"
+      >
+        <span class="account-type__icon">🏢</span>
+        <span class="account-type__label">Wholesale Customer</span>
+        <span class="account-type__desc">Business bulk pricing</span>
+      </button>
+    </div>
+
+    <!-- Error -->
+    <div class="auth-error" *ngIf="errorMessage()">
+      <svg
+        width="16"
+        height="16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+      {{ errorMessage() }}
+    </div>
+
+    <!-- Form -->
+    <div class="auth-form">
+      <!-- Name row -->
+      <div class="auth-form__row">
+        <div class="auth-field">
+          <label class="auth-field__label">First Name</label>
+          <div class="auth-field__input-wrap">
+            <input
+              type="text"
+              class="auth-field__input auth-field__input--no-icon"
+              placeholder="First name"
+              [value]="firstName()"
+              (input)="onInput('firstName', $event)"
+            />
+          </div>
+        </div>
+        <div class="auth-field">
+          <label class="auth-field__label">Last Name</label>
+          <div class="auth-field__input-wrap">
+            <input
+              type="text"
+              class="auth-field__input auth-field__input--no-icon"
+              placeholder="Last name"
+              [value]="lastName()"
+              (input)="onInput('lastName', $event)"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="auth-field">
+        <label class="auth-field__label">Email Address</label>
+        <div class="auth-field__input-wrap">
+          <svg
+            class="auth-field__icon"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            viewBox="0 0 24 24"
+          >
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+            <polyline points="22,6 12,13 2,6" />
+          </svg>
+          <input
+            type="email"
+            class="auth-field__input"
+            placeholder="Enter your email"
+            [value]="email()"
+            (input)="onInput('email', $event)"
+          />
+        </div>
+      </div>
+
+      <!-- Phone -->
+      <div class="auth-field">
+        <label class="auth-field__label"
+          >Phone Number <span class="auth-field__optional">(Optional)</span></label
+        >
+        <div class="auth-field__input-wrap">
+          <svg
+            class="auth-field__icon"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.06 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.29 6.29l1.28-1.28a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"
+            />
+          </svg>
+          <input
+            type="tel"
+            class="auth-field__input"
+            placeholder="07X XXX XXXX"
+            [value]="phone()"
+            (input)="onInput('phone', $event)"
+          />
+        </div>
+      </div>
+
+      <!-- Business name — wholesale only -->
+      <div class="auth-field" *ngIf="accountType() === 'wholesale'">
+        <label class="auth-field__label">
+          Business Name
+          <span class="auth-field__required">*</span>
+        </label>
+        <div class="auth-field__input-wrap">
+          <svg
+            class="auth-field__icon"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            viewBox="0 0 24 24"
+          >
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+          <input
+            type="text"
+            class="auth-field__input"
+            placeholder="Your business or company name"
+            [value]="businessName()"
+            (input)="onInput('businessName', $event)"
+          />
+        </div>
+        <p class="auth-field__hint">
+          Wholesale accounts are reviewed within 24 hours before activation
+        </p>
+      </div>
+
+      <!-- Password -->
+      <div class="auth-field">
+        <label class="auth-field__label">Password</label>
+        <div class="auth-field__input-wrap">
+          <svg
+            class="auth-field__icon"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            viewBox="0 0 24 24"
+          >
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0110 0v4" />
+          </svg>
+          <input
+            [type]="showPassword() ? 'text' : 'password'"
+            class="auth-field__input"
+            placeholder="Create a password"
+            [value]="password()"
+            (input)="onInput('password', $event)"
+          />
+          <button
+            class="auth-field__toggle"
+            type="button"
+            (click)="showPassword.set(!showPassword())"
+          >
+            <svg
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              viewBox="0 0 24 24"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </button>
+        </div>
+        <!-- Password strength -->
+        <div class="password-strength" *ngIf="password()">
+          <div class="password-strength__bar">
+            <div
+              class="password-strength__fill"
+              [style.width]="passwordStrength.width"
+              [style.background]="passwordStrength.color"
+            ></div>
+          </div>
+          <span class="password-strength__label" [style.color]="passwordStrength.color">
+            {{ passwordStrength.label }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Confirm password -->
+      <div class="auth-field">
+        <label class="auth-field__label">Confirm Password</label>
+        <div class="auth-field__input-wrap">
+          <svg
+            class="auth-field__icon"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            viewBox="0 0 24 24"
+          >
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0110 0v4" />
+          </svg>
+          <input
+            [type]="showConfirmPassword() ? 'text' : 'password'"
+            class="auth-field__input"
+            placeholder="Confirm your password"
+            [value]="confirmPassword()"
+            (input)="onInput('confirmPassword', $event)"
+          />
+          <button
+            class="auth-field__toggle"
+            type="button"
+            (click)="showConfirmPassword.set(!showConfirmPassword())"
+          >
+            <svg
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              viewBox="0 0 24 24"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </button>
+        </div>
+        <!-- Match indicator -->
+        <p
+          class="auth-field__match"
+          *ngIf="confirmPassword() && password()"
+          [class.match]="password() === confirmPassword()"
+        >
+          {{ password() === confirmPassword() ? '✓ Passwords match' : '✗ Passwords do not match' }}
+        </p>
+      </div>
+
+      <!-- Terms -->
+      <label class="auth-terms">
+        <input type="checkbox" (change)="toggleTerms($event)" />
+        <span>
+          I agree to the
+          <a href="#">Terms of Service</a>
+          and
+          <a href="#">Privacy Policy</a>
+        </span>
+      </label>
+
+      <!-- Submit -->
+      <button class="auth-btn" (click)="onSubmit()" [disabled]="isLoading()">
+        <span *ngIf="!isLoading()">
+          {{ accountType() === 'wholesale' ? 'Submit Wholesale Application' : 'Create Account' }}
+        </span>
+        <span class="auth-btn__loading" *ngIf="isLoading()">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"
+            />
+          </svg>
+          Creating account...
+        </span>
+      </button>
+    </div>
+
+    <!-- Login link -->
+    <p class="auth-card__switch">
+      Already have an account?
+      <a routerLink="/auth/login">Sign in</a>
+    </p>
+  </div>
+</div>

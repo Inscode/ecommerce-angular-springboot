@@ -140,7 +140,13 @@
   padding: 20px;
   box-shadow: var(--shadow-sm);
   position: sticky;
-  top: 190px;
+  top: 175px;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   @media (max-width: 900px) {
     display: none;

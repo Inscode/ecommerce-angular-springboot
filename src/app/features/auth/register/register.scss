@@ -1,0 +1,161 @@
+@use '../login/login.scss';
+
+// Wide card for register
+.auth-card--wide {
+  max-width: 560px;
+}
+
+// Account type selector
+.account-type {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+
+  &__btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 16px 12px;
+    background: var(--surface-2);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: 'Inter', sans-serif;
+
+    &:hover {
+      border-color: var(--accent);
+    }
+
+    &.active {
+      border-color: var(--accent);
+      background: rgba(201, 168, 76, 0.06);
+    }
+  }
+
+  &__icon {
+    font-size: 1.8rem;
+  }
+
+  &__label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  &__desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+}
+
+// Two column row
+.auth-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// No icon input padding
+.auth-field__input--no-icon {
+  padding-left: 14px !important;
+}
+
+// Optional label
+.auth-field__optional {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+// Required star
+.auth-field__required {
+  color: var(--danger);
+  margin-left: 2px;
+}
+
+// Hint text
+.auth-field__hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+// Password strength
+.password-strength {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+
+  &__bar {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  &__fill {
+    height: 100%;
+    border-radius: 2px;
+    transition:
+      width 0.3s ease,
+      background 0.3s ease;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    min-width: 60px;
+  }
+}
+
+// Match indicator
+.auth-field__match {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 4px;
+  color: var(--danger);
+
+  &.match {
+    color: var(--success);
+  }
+}
+
+// Terms
+.auth-terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  line-height: 1.5;
+
+  input {
+    margin-top: 2px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+  }
+
+  a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
