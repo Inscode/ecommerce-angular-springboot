@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +20,11 @@ export class Login {
   isLoading = signal(false);
   errorMessage = signal('');
 
-  constructor(private router: Router) {}
+  private returnUrl = '/';
+
+  constructor(private router: Router, private authService: AuthService, private route: ActivatedRoute) {
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+  }
 
   onEmailInput(event: Event) {
     this.email.set((event.target as HTMLInputElement).value);
@@ -61,17 +66,18 @@ export class Login {
     this.errorMessage.set('');
 
     setTimeout(() => {
+      const success = this.authService.login(this.email(), this.password());
       this.isLoading.set(false);
 
-      if(this.email() === 'admin@ghanim.lk' && this.password() === 'admin123') {
-        this.router.navigate(['/admin']);
-      } else if (this.email() === 'wholesale@ghanim.lk' && this.password() === 'wholesale123') {
-        this.router.navigate(['/']);
-      } else if (this.email() && this.password()) {
-        this.router.navigate(['/'])
+      if (success) { 
+        if (this.authService.isAdmin) {
+          this.router.navigate(['/admin']);
+        } else {
+          this.router.navigate([this.returnUrl]);
+        }
       } else {
-        this.errorMessage.set('Invalid Email or password');
-      }
-    }, 1200);
+        this.errorMessage.set('Invalid email or password');
+      }   
+    }, 1000);
   }
  }
