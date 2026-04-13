@@ -9,6 +9,20 @@
 .navbar {
   background: var(--primary);
 
+  &__logout {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    text-align: left;
+  }
+
+  &__action--user {
+    .navbar__action-button {
+      color: var(--accent);
+    }
+  }
+
   &__inner {
     max-width: 1280px;
     margin: 0 auto;

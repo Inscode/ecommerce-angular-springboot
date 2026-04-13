@@ -45,10 +45,26 @@
 
       <!-- Right actions -->
       <div class="navbar__actions">
-        <a routerLink="/auth/login" class="navbar__action">
-          <span class="navbar__action-top">Hello, Sign in</span>
-          <span class="navbar__action-bottom">Account & Lists</span>
-        </a>
+        <ng-container *ngIf="!authService.isLoggedIn()">
+          <a routerLink="/auth/login" class="navbar__action">
+            <span class="navbar__action-top">Hello, Sign in</span>
+            <span class="navbar__action-bottom">Account & Lists</span>
+          </a>
+        </ng-container>
+
+        <ng-container *ngIf="authService.isLoggedIn()">
+          <div class="navbar__action navbar__action--user">
+            <span class="navbar__action-top">Hello, {{authService.currentUser()?.firstName }}</span>
+            <span class="navbar__action-bottom">
+              {{authService.isAdmin ? 'Admin': authService.isWholesale ? 'Wholesale': 'My Account'}}
+            </span>
+          </div>
+          <button class="navbar__action navbar__logout" (click)="logout()">
+            <span class="navbar__action-top">Sign</span>
+            <span class="navbar__action-bottom">Out</span>
+          </button>
+        </ng-container>
+
         <a routerLink="/orders" class="navbar__action">
           <span class="navbar__action-top">Returns</span>
           <span class="navbar__action-bottom">& Orders</span>

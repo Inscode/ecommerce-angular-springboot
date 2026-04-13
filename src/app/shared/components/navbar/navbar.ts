@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { environment } from '../../../../environments/environment';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -15,6 +16,7 @@ export class Navbar {
   searchQuery = signal('');
   menuOpen = signal(false);
   cartCount = signal(0);
+  selectedCategory = signal('');
 
   categories = [
     { name: 'All', slug: '' },
@@ -28,7 +30,7 @@ export class Navbar {
     { name: "Today's Deals", slug: 'deals' },
   ];
 
-  selectedCategory = signal('');
+  constructor(public authService: AuthService) {}
 
   onSearch() {
     console.log('Search:', this.searchQuery(), 'Category:', this.selectedCategory());
@@ -47,4 +49,6 @@ export class Navbar {
   toggleMenu() {
     this.menuOpen.set(!this.menuOpen());
   }
+
+  logout() {this.authService.logout();}
 }
