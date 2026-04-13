@@ -1,0 +1,76 @@
+<div class="dashboard">
+  <!-- Stats grid -->
+  <div class="dashboard__stats">
+    <div class="stat-card" *ngFor="let stat of stats">
+      <div class="stat-card__left">
+        <p class="stat-card__label">{{ stat.label }}</p>
+        <p class="stat-card__value">{{ stat.value }}</p>
+        <p class="stat-card__change">{{ stat.change }}</p>
+      </div>
+      <div class="stat-card__icon" [style.background]="stat.color + '18'">
+        <span [style.color]="stat.color">{{ stat.icon }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Two column layout -->
+  <div class="dashboard__grid">
+    <!-- Recent orders -->
+    <div class="admin-card">
+      <div class="admin-card__header">
+        <h2 class="admin-card__title">Recent Orders</h2>
+        <span class="admin-card__link">View all</span>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of recentOrders">
+              <td class="admin-table__id">{{ order.id }}</td>
+              <td>{{ order.customer }}</td>
+              <td>{{ order.items }}</td>
+              <td>Rs. {{ order.total | number }}</td>
+              <td>
+                <span class="status-badge" [class]="getStatusClass(order.status)">
+                  {{ order.status }}
+                </span>
+              </td>
+              <td class="admin-table__date">{{ order.date }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Top products -->
+    <div class="admin-card">
+      <div class="admin-card__header">
+        <h2 class="admin-card__title">Top Products</h2>
+        <span class="admin-card__link">View all</span>
+      </div>
+      <div class="top-products">
+        <div class="top-product" *ngFor="let product of topProducts; let i = index">
+          <span class="top-product__rank">#{{ i + 1 }}</span>
+          <span class="top-product__emoji">{{ product.emoji }}</span>
+          <div class="top-product__info">
+            <p class="top-product__name">{{ product.name }}</p>
+            <p class="top-product__category">{{ product.category }}</p>
+          </div>
+          <div class="top-product__stats">
+            <p class="top-product__sales">{{ product.sales }} sold</p>
+            <p class="top-product__revenue">Rs. {{ product.revenue | number }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

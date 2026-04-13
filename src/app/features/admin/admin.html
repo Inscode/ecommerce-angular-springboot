@@ -1,0 +1,83 @@
+<div class="admin">
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <!-- Brand -->
+    <div class="admin-sidebar__brand">
+      <span class="admin-sidebar__brand-icon">G</span>
+      <div>
+        <p class="admin-sidebar__brand-name">Ghanim</p>
+        <p class="admin-sidebar__brand-sub">Admin Panel</p>
+      </div>
+    </div>
+
+    <!-- Nav items -->
+    <nav class="admin-sidebar__nav">
+      <button
+        class="admin-sidebar__item"
+        *ngFor="let item of menuItems"
+        [class.active]="activeTab() === item.id"
+        (click)="setTab(item.id)"
+      >
+        <span class="admin-sidebar__item-icon">{{ item.icon }}</span>
+        <span class="admin-sidebar__item-label">{{ item.label }}</span>
+      </button>
+    </nav>
+
+    <!-- Bottom actions -->
+    <div class="admin-sidebar__bottom">
+      <a routerLink="/" class="admin-sidebar__item">
+        <span class="admin-sidebar__item-icon">🏪</span>
+        <span class="admin-sidebar__item-label">View Shop</span>
+      </a>
+      <button class="admin-sidebar__item admin-sidebar__item--danger" (click)="logout()">
+        <span class="admin-sidebar__item-icon">🚪</span>
+        <span class="admin-sidebar__item-label">Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="admin-main">
+    <!-- Top bar -->
+    <div class="admin-topbar">
+      <div class="admin-topbar__left">
+        <h1 class="admin-topbar__title">
+          {{ menuItems.find(m => m.id === activeTab())?.icon }}
+          {{ menuItems.find(m => m.id === activeTab())?.label }}
+        </h1>
+      </div>
+      <div class="admin-topbar__right">
+        <div class="admin-topbar__user">
+          <span class="admin-topbar__user-avatar">
+            {{ authService.currentUser()?.firstName?.charAt(0) }}
+          </span>
+          <div>
+            <p class="admin-topbar__user-name">
+              {{ authService.currentUser()?.firstName }} {{ authService.currentUser()?.lastName }}
+            </p>
+            <p class="admin-topbar__user-role">Administrator</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab content -->
+    <div class="admin-content">
+      <app-admin-dashboard *ngIf="activeTab() === 'dashboard'" />
+      <app-admin-products *ngIf="activeTab() === 'products'" />
+      <app-admin-orders *ngIf="activeTab() === 'orders'" />
+
+      <!-- Coming soon tabs -->
+      <div
+        class="admin-coming-soon"
+        *ngIf="
+          activeTab() === 'customers' || activeTab() === 'categories' || activeTab() === 'pricing'
+        "
+      >
+        <span>🚧</span>
+        <h2>Coming Soon</h2>
+        <p>This section will be available once the backend is connected.</p>
+      </div>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,129 @@
+<div class="admin-products">
+  <!-- Header -->
+  <div class="admin-products__header">
+    <div class="admin-products__filters">
+      <div class="admin-search">
+        <svg
+          width="16"
+          height="16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
+        <input type="text" placeholder="Search products..." (input)="onSearchInput($event)" />
+      </div>
+      <select class="admin-select" (change)="onCategoryFilter($event)">
+        <option value="">All Categories</option>
+        <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+      </select>
+    </div>
+    <button class="admin-btn" (click)="showAddForm.set(true)">+ Add Product</button>
+  </div>
+
+  <!-- Add product form -->
+  <div class="admin-form-card" *ngIf="showAddForm()">
+    <div class="admin-form-card__header">
+      <h3>Add New Product</h3>
+      <button (click)="showAddForm.set(false)">✕</button>
+    </div>
+    <div class="admin-form-card__body">
+      <div class="admin-form__row">
+        <div class="admin-form__field">
+          <label>Product Name</label>
+          <input
+            type="text"
+            placeholder="Enter product name"
+            (input)="onFieldInput('name', $event)"
+          />
+        </div>
+        <div class="admin-form__field">
+          <label>Category</label>
+          <select (change)="onFieldInput('category', $event)">
+            <option value="">Select category</option>
+            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          </select>
+        </div>
+        <div class="admin-form__field">
+          <label>Emoji Icon</label>
+          <input type="text" placeholder="📦" (input)="onFieldInput('emoji', $event)" />
+        </div>
+      </div>
+      <div class="admin-form__row">
+        <div class="admin-form__field">
+          <label>Retail Price (Rs.)</label>
+          <input type="number" placeholder="0" (input)="onFieldInput('retailPrice', $event)" />
+        </div>
+        <div class="admin-form__field">
+          <label>Wholesale Price (Rs.)</label>
+          <input type="number" placeholder="0" (input)="onFieldInput('wholesalePrice', $event)" />
+        </div>
+        <div class="admin-form__field">
+          <label>Stock Quantity</label>
+          <input type="number" placeholder="0" (input)="onFieldInput('stock', $event)" />
+        </div>
+      </div>
+      <div class="admin-form__actions">
+        <button class="admin-btn admin-btn--outline" (click)="showAddForm.set(false)">
+          Cancel
+        </button>
+        <button class="admin-btn" (click)="addProduct()">Save Product</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products table -->
+  <div class="admin-card">
+    <div class="admin-card__header">
+      <h2 class="admin-card__title">Products ({{ filteredProducts.length }})</h2>
+    </div>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Retail Price</th>
+            <th>Wholesale Price</th>
+            <th>Stock</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of filteredProducts">
+            <td>
+              <div class="product-cell">
+                <span class="product-cell__emoji">{{ product.emoji }}</span>
+                <span class="product-cell__name">{{ product.name }}</span>
+              </div>
+            </td>
+            <td>{{ product.category }}</td>
+            <td>Rs. {{ product.retailPrice | number }}</td>
+            <td class="wholesale-price">Rs. {{ product.wholesalePrice | number }}</td>
+            <td>{{ product.stock }}</td>
+            <td>
+              <span class="status-badge" [class]="getStatusClass(product.status)">
+                {{ product.status }}
+              </span>
+            </td>
+            <td>
+              <div class="table-actions">
+                <button class="table-actions__btn table-actions__btn--edit">Edit</button>
+                <button
+                  class="table-actions__btn table-actions__btn--delete"
+                  (click)="deleteProduct(product.id)"
+                >
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

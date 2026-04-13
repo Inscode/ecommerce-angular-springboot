@@ -1,0 +1,62 @@
+<div class="admin-orders">
+  <!-- Status filter pills -->
+  <div class="order-filters">
+    <button
+      class="order-filter"
+      *ngFor="let status of statuses"
+      [class.active]="(selectedStatus() || 'All') === status"
+      (click)="setStatus(status)"
+    >
+      {{ status }}
+    </button>
+  </div>
+
+  <!-- Orders table -->
+  <div class="admin-card">
+    <div class="admin-card__header">
+      <h2 class="admin-card__title">Orders ({{ filteredOrders.length }})</h2>
+    </div>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Phone</th>
+            <th>Type</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of filteredOrders">
+            <td class="admin-table__id">{{ order.id }}</td>
+            <td>{{ order.customer }}</td>
+            <td class="admin-table__phone">{{ order.phone }}</td>
+            <td>
+              <span class="type-badge" [class]="getTypeClass(order.type)">
+                {{ order.type }}
+              </span>
+            </td>
+            <td>{{ order.items }} items</td>
+            <td>
+              <strong>Rs. {{ order.total | number }}</strong>
+            </td>
+            <td>
+              <span class="status-badge" [class]="getStatusClass(order.status)">
+                {{ order.status }}
+              </span>
+            </td>
+            <td class="admin-table__date">{{ order.date }}</td>
+            <td>
+              <button class="table-actions__btn table-actions__btn--edit">View</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
