@@ -23,7 +23,7 @@ import { filter } from 'rxjs';
 export class App {
   showLayout = signal(true);
 
-  private authRoutes = ['/auth/login', '/auth/register'];
+  private authRoutes = ['/auth/login', '/auth/register', '/admin'];
 
   constructor(private router: Router) {
     this.router.events.pipe(
