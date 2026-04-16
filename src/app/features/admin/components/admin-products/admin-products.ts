@@ -1,5 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
+import { Product, ProductRequest } from '../../../../core/models/product.model';
+import { Category } from '../../../../core/models/category.model';
+import { ProductService } from '../../../../core/services/product.service';
 
 @Component({
   selector: 'app-admin-products',
@@ -8,36 +11,67 @@ import { Component, signal } from '@angular/core';
   templateUrl: './admin-products.html',
   styleUrl: './admin-products.scss',
 })
-export class AdminProducts {
+export class AdminProducts implements OnInit {
   showAddForm = signal(false);
+  showEditForm = signal(false);
   searchQuery = signal('');
   selectedCategory = signal('');
+  isLoading = signal(true);
+  isSaving = signal(false);
+  deleteConfirmId = signal<number | null>(null);
 
-    categories = [
-    'Kitchenware', 'Aluminium', 'Plastic',
-    'Gift Items', 'Umbrellas', 'Lighting', 'General'
-  ];
+  products = signal<Product[]>([]);
+  categories = signal<Category[]>([]);
 
-    products = signal([
-    { id: 1, name: 'Non-Stick Frying Pan', category: 'Kitchenware', retailPrice: 1850, wholesalePrice: 1400, stock: 45, status: 'Active', emoji: '🍳' },
-    { id: 2, name: 'Kitchen Knife Set', category: 'Kitchenware', retailPrice: 2800, wholesalePrice: 2100, stock: 32, status: 'Active', emoji: '🔪' },
-    { id: 3, name: 'Aluminium Storage Bin', category: 'Aluminium', retailPrice: 2400, wholesalePrice: 1800, stock: 28, status: 'Active', emoji: '🪣' },
-    { id: 4, name: 'Aluminium Ladder', category: 'Aluminium', retailPrice: 8500, wholesalePrice: 6500, stock: 12, status: 'Active', emoji: '🪜' },
-    { id: 5, name: 'Plastic Storage Box', category: 'Plastic', retailPrice: 650, wholesalePrice: 480, stock: 0, status: 'Out of Stock', emoji: '🧴' },
-    { id: 6, name: 'Gift Hamper Set', category: 'Gift Items', retailPrice: 3500, wholesalePrice: 2700, stock: 18, status: 'Active', emoji: '🎁' },
-    { id: 7, name: 'Folding Umbrella', category: 'Umbrellas', retailPrice: 950, wholesalePrice: 720, stock: 65, status: 'Active', emoji: '☂️' },
-    { id: 8, name: 'LED Ceiling Light', category: 'Lighting', retailPrice: 1200, wholesalePrice: 900, stock: 5, status: 'Low Stock', emoji: '💡' },
-  ]);
+  emptyForm = {
+    name: '',
+    description: '',
+    retailPrice: 0,
+    wholesalePrice: 0,
+    stock: 0,
+    emoji: '📦',
+    imageUrl: '',
+    badge: '',
+    categoryId: 0
+  }
 
   newProduct = signal({
-    name: '', category: '', retailPrice: 0,
-    wholesalePrice: 0, stock: 0, emoji: '📦'
+    ...this.emptyForm
   });
+
+  editProduct = signal<any>(null);
+
+  constructor(private productService: ProductService){}
+
+  ngOnInit() {
+    this.loadProducts();
+    this.loadCategories();
+  }
+
+  loadProducts() {
+    this.isLoading.set(true);
+    this.productService.getAllProducts().subscribe({
+      next: (products) => {
+        this.products.set(products);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+      }
+    })
+  }
+
+  loadCategories() {
+    this.productService.getAllCategories().subscribe({
+      next: (cats) => this.categories.set(cats),
+      error: () => {}
+    });
+  }
 
   get filteredProducts() {
     return this.products().filter(p=> {
       const matchSearch = p.name.toLowerCase().includes(this.searchQuery().toLowerCase());
-      const matchcat = !this.selectedCategory() || p.category === this.selectedCategory();
+      const matchcat = !this.selectedCategory() || p.categorySlug === this.selectedCategory();
       return matchSearch && matchcat;
     })
   }
@@ -51,33 +85,143 @@ export class AdminProducts {
   }
 
  
-  onFieldInput(field: string, event: Event) {
+  onNewFieldInput(field: string, event: Event) {
     const value = (event.target as HTMLInputElement).value;
-    this.newProduct.update(p => ({ ...p, [field]: field.includes('Price') || field === 'stock' ? +value : value }));
+    this.newProduct.update(p => ({ ...p, [field]: ['retailPrice', 'wholesalePrice', 'stock', 'categoryId'].includes(field)? + value: value }));
+  }
+
+  onEditFieldInput(field: string, event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.editProduct.update((p:any)=> ({
+      ...p, [field]: ['retailPrice', 'wholesalePrice', 'stock', 'categoryId']
+      .includes(field)? + value : value
+    }))
+  }
+
+  openEditForm(product: Product) {
+    const category = this.categories().find(
+      c => c.slug === product.categorySlug
+    );
+
+    this.editProduct.set({
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      retailPrice: product.price,
+      wholesalePrice: product.price,
+      stock: product.stock,
+      emoji : product.emoji || '📦',
+      imageUrl: product.imageUrl || '',
+      badge: product.badge || '',
+      categoryId: category?.id || 0
+    });
+
+    this.showEditForm.set(true);
+  }
+
+  closeEditForm() {
+    this.showEditForm.set(false);
+    this.editProduct.set(null);
   }
 
   addProduct() {
-    const p = this.newProduct();
-    if (!p.name || !p.category || !p.retailPrice) return;
-    this.products.update(list => [...list, {
-      id: list.length + 1,
-      ...p,
-      status: p.stock === 0 ? 'Out of Stock' : p.stock < 10 ? 'Low Stock' : 'Active'
-    }]);
-    this.showAddForm.set(false);
-    this.newProduct.set({ name: '', category: '', retailPrice: 0, wholesalePrice: 0, stock: 0, emoji: '📦' });
+     const p = this.newProduct();
+  console.log('Current form state:', p);
+  console.log('name:', p.name);
+  console.log('categoryId:', p.categoryId, typeof p.categoryId);
+  console.log('retailPrice:', p.retailPrice, typeof p.retailPrice);
+
+  if (!p.name || !p.categoryId || !p.retailPrice) {
+    console.log('BLOCKED by validation');
+    return;   
+  }
+    const request: ProductRequest = {
+      name: p.name,
+      description: p.description,
+      retailPrice: p.retailPrice,
+      wholesalePrice: p.wholesalePrice || p.retailPrice,
+      stock: p.stock,
+      emoji: p.emoji,
+      imageUrl: p.imageUrl,
+      badge: p.badge || undefined,
+      categoryId: p.categoryId
+    };
+
+    this.productService.createProduct(request).subscribe({
+      next: () => {
+        this.isSaving.set(false);
+        this.showAddForm.set(false);
+        this.newProduct.set({...this.emptyForm});
+        this.loadProducts();
+      },
+      error: (err) => {
+        this.isSaving.set(false);
+        alert('Failed to add products: ' + (err.error?.message || 'Unknown error' ));
+      }
+    })
+  }
+
+  saveEdit() {
+    const p = this.editProduct();
+    if(!p || !p.name || !p.categoryId) return;
+
+    this.isSaving.set(true);
+
+    const request: ProductRequest = {
+      name: p.name,
+      description: p.description,
+      retailPrice: p.retailPrice,
+      wholesalePrice: p.wholesalePrice,
+      stock: p.stock,
+      emoji: p.emoji,
+      imageUrl: p.imageUrl,
+      badge: p.badge || undefined,
+      categoryId: p.categoryId
+    };
+
+    this.productService.updateProduct(p.id, request).subscribe({
+      next: () => {
+        this.isSaving.set(false);
+        this.closeEditForm();
+        this.loadProducts();
+      },
+      error: (err) => {
+        this.isSaving.set(false);
+        alert('Failed to update product: ' + (err.error?.message || 'Unknown error'));
+      }
+    })
+  }
+
+  confirmDelete(id: number) {
+    this.deleteConfirmId.set(id);
+  }
+
+  cancelDelete() {
+    this.deleteConfirmId.set(null);
   }
 
   deleteProduct(id: number) {
-    this.products.update(list => list.filter(p => p.id !== id));
+    this.productService.deleteProduct(id).subscribe({
+      next: () => {
+        this.deleteConfirmId.set(null);
+        this.loadProducts();
+      },
+      error: (err) => {
+        alert('Failed to delete product');
+        this.deleteConfirmId.set(null);
+      }
+    })
   }
 
-  getStatusClass(status: string): string {
-    switch(status) {
-      case 'Active': return 'status--active';
-      case 'Out of Stock': return 'status--out';
-      case 'Low Stock': return 'status--low';
-      default: return '';
-    }
+  getStatusClass(product: Product): string {
+    if (!product.inStock) return 'status--out';
+    if (product.stock < 10) return 'status--low';
+    return 'status--active';
+  }
+
+  getStatusLabel(product: Product): string {
+    if (!product.inStock) return 'Out of Stock';
+    if (product.stock < 10) return 'Low Stock';
+    return 'Active';
   }
 }
