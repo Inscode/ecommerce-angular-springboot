@@ -52,9 +52,9 @@
         <span class="detail__price-old" *ngIf="product().originalPrice">
           {{ currencySymbol }} {{ product().originalPrice | number }}
         </span>
-        <span class="detail__price-save" *ngIf="discountPercent">
+        <!-- <span class="detail__price-save" *ngIf="discountPercent">
           Save {{ discountPercent }}%
-        </span>
+        </span> -->
       </div>
 
       <!-- Stock -->
@@ -220,7 +220,7 @@
   <div class="container detail__related" *ngIf="relatedProducts.length > 0">
     <h2 class="detail__related-title">Related Products</h2>
     <div class="detail__related-grid">
-      <a class="rcard" *ngFor="let rp of relatedProducts" [routerLink]="['/products', rp.id]">
+      <a class="rcard" *ngFor="let rp of relatedProducts()" [routerLink]="['/products', rp.id]">
         <div class="rcard__img">{{ rp.emoji }}</div>
         <div class="rcard__body">
           <p class="rcard__name">{{ rp.name }}</p>

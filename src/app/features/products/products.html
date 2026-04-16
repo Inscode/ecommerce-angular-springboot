@@ -111,6 +111,16 @@
 
     <!-- Products -->
     <main class="products-area">
+      <div class="loading-state" *ngIf="isLoading()">
+        <div class="loading-state__spinner"></div>
+        <p>Loading products...</p>
+      </div>
+
+      <div class="error-state" *ngIf="error() && !isLoading()">
+        <span>⚠️</span>
+        <p>{{ error() }}</p>
+        <button class="btn-primary" (click)="loadProducts()">Try Again</button>
+      </div>
       <!-- No results -->
       <div class="no-results" *ngIf="productList.length === 0">
         <span>🔍</span>
@@ -133,23 +143,17 @@
             >
               {{ product.badge }}
             </span>
-            <span class="pcard__discount" *ngIf="product.originalPrice">
-              -{{ discount(product) }}%
-            </span>
             <span class="pcard__out" *ngIf="!product.inStock">Out of Stock</span>
           </a>
           <div class="pcard__body">
-            <p class="pcard__category">{{ product.category | titlecase }}</p>
+            <p class="pcard__category">{{ product.categoryName | titlecase }}</p>
             <a [routerLink]="['/products', product.id]" class="pcard__name">{{ product.name }}</a>
-            <div class="pcard__rating">
+            <!-- <div class="pcard__rating">
               <span class="pcard__stars">★★★★★</span>
               <span class="pcard__reviews">({{ product.reviews }})</span>
-            </div>
+            </div> -->
             <div class="pcard__price">
               <span class="pcard__price-now">Rs. {{ product.price | number }}</span>
-              <span class="pcard__price-old" *ngIf="product.originalPrice">
-                Rs. {{ product.originalPrice | number }}
-              </span>
             </div>
             <button class="pcard__btn" [disabled]="!product.inStock" (click)="addToCart(product)">
               {{ product.inStock ? 'Add to Cart' : 'Out of Stock' }}
@@ -165,12 +169,12 @@
             <span>{{ product.emoji }}</span>
           </a>
           <div class="lcard__body">
-            <p class="lcard__category">{{ product.category | titlecase }}</p>
+            <p class="lcard__category">{{ product.categoryName | titlecase }}</p>
             <a [routerLink]="['/products', product.id]" class="lcard__name">{{ product.name }}</a>
-            <div class="lcard__rating">
+            <!-- <div class="lcard__rating">
               <span class="lcard__stars">★★★★★</span>
               <span class="lcard__reviews">({{ product.reviews }} reviews)</span>
-            </div>
+            </div> -->
             <div class="lcard__badges">
               <span
                 class="pcard__badge"
@@ -189,12 +193,6 @@
           <div class="lcard__right">
             <div class="lcard__price">
               <span class="lcard__price-now">Rs. {{ product.price | number }}</span>
-              <span class="lcard__price-old" *ngIf="product.originalPrice">
-                Rs. {{ product.originalPrice | number }}
-              </span>
-              <span class="lcard__discount" *ngIf="product.originalPrice">
-                Save {{ discount(product) }}%
-              </span>
             </div>
             <button class="pcard__btn" [disabled]="!product.inStock" (click)="addToCart(product)">
               {{ product.inStock ? 'Add to Cart' : 'Out of Stock' }}
