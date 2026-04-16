@@ -1,5 +1,9 @@
 import { Injectable, signal } from "@angular/core";
 import { Router } from "@angular/router";
+import { environment } from "../../../environments/environment";
+import { HttpClient } from "@angular/common/http";
+import { AuthResponse, LoginRequest, RegisterRequest } from "../models/auth.model";
+import { Observable, tap } from "rxjs";
 
 
 
@@ -17,10 +21,13 @@ export interface User {
 })
 
 export class AuthService {
+
+    private apiUrl = environment.apiUrl;
+
     currentUser = signal<User | null> (null);
     isLoggedIn = signal(false);
 
-    constructor(private router: Router) {
+    constructor(private router: Router, private http: HttpClient) {
         this.loadFromStorage();
     }
 
@@ -38,29 +45,43 @@ export class AuthService {
         }
     }
 
-    login(email: string, password: string) : boolean {
+    login(request: LoginRequest) : Observable<AuthResponse> {
         let mockUser: User | null = null;
 
-        if (email === 'admin@ghanim.lk' && password === 'admin123') {
-            mockUser = {id: 1, firstName: 'Admin', lastName: 'User', email, role: 'ADMIN'};
-        } else if (email === 'wholesale@ghanim.lk' && password === 'wholesale123') {
-            mockUser = {id: 2, firstName: 'wholesale', lastName: 'Customer', email, role: 'WHOLESALE'};
-        } else if (email && password) {
-            mockUser = { id: 3, firstName: 'Retail', lastName: 'Customer', email, role: 'RETAIL'};
-        }
-
-        if (mockUser) {
-            const mockToken = btoa(JSON.stringify({user: mockUser, exp: Date.now() + 86400000}));
-            localStorage.setItem('token', mockToken);
-            localStorage.setItem('role', mockUser.role);
-            localStorage.setItem('user', JSON.stringify(mockUser));
-            this.currentUser.set(mockUser);
-            this.isLoggedIn.set(true);
-            return true;
-        }
-
-        return false;
+        return this.http.post<AuthResponse>(
+            `${this.apiUrl}/auth/login`, 
+            request
+        ).pipe(
+            tap(response => {
+                localStorage.setItem('token', response.token);
+                localStorage.setItem('role', response.role);
+                localStorage.setItem('user', JSON.stringify({
+                    firstName: response.firstName,
+                    lastName: response.lastName,
+                    email: response.email,
+                    role: response.role
+                }));
+                
+                this.currentUser.set({
+                    id: 0,
+                    firstName: response.firstName,
+                    lastName: response.lastName,
+                    email: response.email,
+                    role: response.role as any
+                });
+                this.isLoggedIn.set(true);
+            })
+        )
      }
+
+     register(request: RegisterRequest): Observable<AuthResponse> {
+        return this.http.post<AuthResponse>(
+            `${this.apiUrl}/auth/register`,
+            request
+        );
+     }
+
+     
 
      logout() {
         localStorage.removeItem('token');
