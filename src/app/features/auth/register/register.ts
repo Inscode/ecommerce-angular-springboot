@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -27,7 +28,7 @@ export class Register {
   errorMessage = signal('');
   agreedToTerms = signal(false);
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   onInput(field: string, event: Event) {
     const value = (event.target as HTMLInputElement).value;
@@ -81,10 +82,26 @@ export class Register {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    setTimeout(() => {
-      this.isLoading.set(false);
-      this.router.navigate(['/auth/login']);
-    }, 1500);
+    this.authService.register({
+      firstName: this.firstName(),
+      lastName: this.lastName(),
+      email: this.email(),
+      password: this.password(),
+      phone: this.phone(),
+      accountType: this.accountType(),
+      businessName: this.businessName()
+    }). subscribe ({
+      next: () => {
+        this.isLoading.set(false);
+        this.router.navigate(['/auth/login']);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.errorMessage.set(
+          err.error?.message || 'Registration failed. Please try again.'
+        )
+      }
+    })
   }
 
 

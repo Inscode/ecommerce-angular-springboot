@@ -65,19 +65,26 @@ export class Login {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    setTimeout(() => {
-      const success = this.authService.login(this.email(), this.password());
-      this.isLoading.set(false);
+    this.authService.login({
+      email: this.email(),
+      password: this.password()
 
-      if (success) { 
-        if (this.authService.isAdmin) {
-          this.router.navigate(['/admin']);
+    }).subscribe({
+      next: (response) => {
+        this.isLoading.set(false);
+        if(response.role === 'ADMIN') {
+          this.router.navigate(['/admin'])
         } else {
           this.router.navigate([this.returnUrl]);
         }
-      } else {
-        this.errorMessage.set('Invalid email or password');
-      }   
-    }, 1000);
+      },
+
+      error: (err) => {
+        this.isLoading.set(false);
+        this.errorMessage.set(
+          err.error?.message || 'Invalid email or password'
+        );
+      }
+    });
   }
  }
