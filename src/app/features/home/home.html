@@ -38,11 +38,9 @@
   <section class="cat-pills">
     <div class="container cat-pills__inner">
       <a class="cat-pill"
-         *ngFor="let cat of categories"
+         *ngFor="let cat of categories()"
          [routerLink]="['/products']"
-         [queryParams]="{category: cat.slug}"
-         [style.background]="cat.color"
-         [style.border-color]="cat.border">
+         [queryParams]="{category: cat.slug}">
         <span class="cat-pill__emoji">{{ cat.emoji }}</span>
         <span class="cat-pill__name">{{ cat.name }}</span>
       </a>
@@ -82,7 +80,7 @@
         <a routerLink="/products" class="featured__link">View all</a>
       </div>
       <div class="featured__scroller">
-        <div class="product-card" *ngFor="let product of featuredProducts">
+        <div class="product-card" *ngFor="let product of featuredProducts()">
           <div class="product-card__img">
             <span>{{ product.emoji }}</span>
             <span class="product-card__badge"
@@ -94,15 +92,15 @@
             </span>
           </div>
           <div class="product-card__body">
-            <p class="product-card__category">{{ product.category }}</p>
+            <p class="product-card__category">{{ product.categoryName }}</p>
             <p class="product-card__name">{{ product.name }}</p>
             <div class="product-card__price">
               <span class="product-card__price-now">
                 {{ currencySymbol }} {{ product.price | number }}
               </span>
-              <span class="product-card__price-old" *ngIf="product.originalPrice">
+              <!-- <span class="product-card__price-old" *ngIf="product.originalPrice">
                 {{ currencySymbol }} {{ product.originalPrice | number }}
-              </span>
+              </span> -->
             </div>
             <button class="product-card__btn" (click)="addToCart(product)">
               Add to Cart
