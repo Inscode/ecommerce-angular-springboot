@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { roleGuard } from './core/guards/role-guard';
+import { authGuard } from './core/guards/auth-guard';
 
 export const routes: Routes = [
     {
@@ -45,6 +46,14 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: {role: 'ADMIN'}
      }, 
+
+     {
+        path: 'order-success/:id',
+        loadComponent: () => 
+            import('./features/order-success/order-success')
+        .then(m => m.OrderSuccess),
+        canActivate: [authGuard]
+     },
 
     {
         path: "**",

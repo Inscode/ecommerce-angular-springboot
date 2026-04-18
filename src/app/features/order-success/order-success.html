@@ -1,0 +1,80 @@
+<div class="order-success">
+  <div class="container">
+
+    <div class="order-success__card" *ngIf="!isLoading()">
+
+      <!-- Success icon -->
+      <div class="order-success__icon">✅</div>
+
+      <h1 class="order-success__title">Order Placed Successfully!</h1>
+      <p class="order-success__subtitle">
+        Thank you for your order. We will process it shortly.
+      </p>
+
+      <div class="order-success__details" *ngIf="order()">
+        <div class="order-success__row">
+          <span>Order ID</span>
+          <span class="order-success__id">#ORD-{{ order()!.id }}</span>
+        </div>
+        <div class="order-success__row">
+          <span>Status</span>
+          <span class="status-badge status--pending">
+            {{ order()!.status }}
+          </span>
+        </div>
+        <div class="order-success__row">
+          <span>Items</span>
+          <span>{{ order()!.items.length }} items</span>
+        </div>
+        <div class="order-success__row">
+          <span>Total</span>
+          <span class="order-success__total">
+            Rs. {{ order()!.total | number }}
+          </span>
+        </div>
+        <div class="order-success__row" *ngIf="order()!.deliveryAddress">
+          <span>Delivery To</span>
+          <span>{{ order()!.deliveryAddress }}</span>
+        </div>
+      </div>
+
+      <!-- Items summary -->
+      <div class="order-success__items" *ngIf="order()">
+        <h3>Order Items</h3>
+        <div class="order-success__item"
+             *ngFor="let item of order()!.items">
+          <span class="order-success__item-emoji">
+            {{ item.productEmoji }}
+          </span>
+          <span class="order-success__item-name">
+            {{ item.productName }}
+          </span>
+          <span class="order-success__item-qty">
+            x{{ item.quantity }}
+          </span>
+          <span class="order-success__item-price">
+            Rs. {{ item.totalPrice | number }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="order-success__actions">
+        <a routerLink="/products" class="btn-primary">
+          Continue Shopping
+        </a>
+        <a routerLink="/" class="btn-outline">
+          Back to Home
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Loading -->
+    <div class="order-success__loading" *ngIf="isLoading()">
+      <div class="loading-spinner"></div>
+      <p>Loading your order details...</p>
+    </div>
+
+  </div>
+</div>

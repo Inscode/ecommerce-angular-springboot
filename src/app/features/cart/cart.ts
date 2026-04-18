@@ -1,70 +1,83 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import { Component, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { environment } from '../../../environments/environment';
+import { CartService } from '../../core/services/cart.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
   imports: [RouterLink, CommonModule],
   templateUrl: './cart.html',
-  styleUrl: './cart.scss',
+  styleUrl: './cart.scss'
 })
 export class Cart {
   currencySymbol = environment.currencySymbol;
 
-  cartItems = signal([
-    { id: 1, name: 'Non-Stick Frying Pan', category: 'Kitchenware', price: 1850, quantity: 1, emoji: '🍳' },
-    { id: 11, name: 'Gift Hamper Set', category: 'Gift Items', price: 3500, quantity: 2, emoji: '🎁' },
-    { id: 14, name: 'Folding Umbrella', category: 'Umbrellas', price: 950, quantity: 1, emoji: '☂️' },
-  ]);
-
   promoCode = signal('');
   promoApplied = signal(false);
   promoDiscount = signal(0);
+  deliveryAddress = signal('');
+  notes = signal('');
+  showCheckoutForm = signal(false);
 
-  subtotal = computed(() => 
-  this.cartItems().reduce((sum, item) => sum + item.price * item.quantity, 0))
+  constructor(
+    public cartService: CartService,
+    public authService: AuthService
+  ) {}
 
-  discount = computed(() => 
-    this.promoApplied() ? this.promoDiscount() : 0
-  );
-
-  deliveryFee = computed(() => 
-  this.subtotal() > 5000 ? 0: 350);
-
-  total = computed(() => 
-  this.subtotal() - this.discount() + this.deliveryFee());
-
-  totalItems = computed(() => 
-  this.cartItems().reduce((sum, item) => sum + item.quantity, 0));
+  get subtotal() { return this.cartService.subtotal(); }
+  get totalItems() { return this.cartService.totalItems(); }
+  get deliveryFee() { return this.cartService.deliveryFee(); }
+  get total() {
+    return this.subtotal - this.promoDiscount() + this.deliveryFee;
+  }
 
   increaseQty(id: number) {
-    this.cartItems.update(items => 
-      items.map(item => 
-        item.id === id ? {...item, quantity: item.quantity + 1} : item
-      )
-    )
+    const item = this.cartService.cartItems()
+      .find(i => i.id === id);
+    if (item) {
+      this.cartService.updateQuantity(id, item.quantity + 1);
+    }
   }
 
   decreaseQty(id: number) {
-    this.cartItems.update(items => 
-      items.map(item => 
-        item.id === id && item.quantity > 1 ?
-         { ...item, quantity: item.quantity - 1} : item
-      )
-    );
+    const item = this.cartService.cartItems()
+      .find(i => i.id === id);
+    if (item && item.quantity > 1) {
+      this.cartService.updateQuantity(id, item.quantity - 1);
+    }
   }
 
   removeItem(id: number) {
-    this.cartItems.update(items => items.filter(item => item.id !== id));
+    this.cartService.removeFromCart(id);
+  }
+
+  onPromoInput(event: Event) {
+    this.promoCode.set(
+      (event.target as HTMLInputElement).value
+    );
+  }
+
+  onAddressInput(event: Event) {
+    this.deliveryAddress.set(
+      (event.target as HTMLInputElement).value
+    );
+  }
+
+  onNotesInput(event: Event) {
+    this.notes.set(
+      (event.target as HTMLTextAreaElement).value
+    );
   }
 
   applyPromo() {
     const code = this.promoCode().trim().toUpperCase();
-
-    if(code === 'SAVE10') {
-      this.promoDiscount.set(Math.round(this.subtotal() * 0.1));
+    if (code === 'SAVE10') {
+      this.promoDiscount.set(
+        Math.round(this.subtotal * 0.1)
+      );
       this.promoApplied.set(true);
     } else if (code === 'FLAT500') {
       this.promoDiscount.set(500);
@@ -72,7 +85,7 @@ export class Cart {
     } else {
       this.promoApplied.set(false);
       this.promoDiscount.set(0);
-      alert('Invalid promo code');
+      alert('Invalid promo code. Try SAVE10 or FLAT500');
     }
   }
 
@@ -82,13 +95,28 @@ export class Cart {
     this.promoDiscount.set(0);
   }
 
-  onPromoInput(event: Event) {
-    this.promoCode.set((event.target as HTMLInputElement).value);
-  }
-
   clearCart() {
-    this.cartItems.set([]);
+    this.cartService.clearCart();
   }
-};
 
- 
+  checkout() {
+    if (!this.authService.isLoggedIn()) {
+      this.showCheckoutForm.set(false);
+      this.cartService.placeOrder(
+        this.promoApplied() ? this.promoCode() : undefined,
+        this.deliveryAddress(),
+        this.notes()
+      );
+      return;
+    }
+    this.showCheckoutForm.set(true);
+  }
+
+  placeOrder() {
+    this.cartService.placeOrder(
+      this.promoApplied() ? this.promoCode() : undefined,
+      this.deliveryAddress(),
+      this.notes()
+    );
+  }
+}

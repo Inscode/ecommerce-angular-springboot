@@ -2,7 +2,8 @@ import { Component, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { environment } from '../../../../environments/environment';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService } from '../../../core/services/auth.service';  
+import { CartService } from '../../../core/services/cart.service';  
 
 @Component({
   selector: 'app-navbar',
@@ -15,8 +16,6 @@ export class Navbar {
   shopName = environment.shopName;
   searchQuery = signal('');
   menuOpen = signal(false);
-  cartCount = signal(0);
-  selectedCategory = signal('');
 
   categories = [
     { name: 'All', slug: '' },
@@ -30,15 +29,14 @@ export class Navbar {
     { name: "Today's Deals", slug: 'deals' },
   ];
 
-  constructor(public authService: AuthService) {}
+  constructor(public authService: AuthService, public cartService: CartService) {}
 
   onSearch() {
-    console.log('Search:', this.searchQuery(), 'Category:', this.selectedCategory());
+    console.log('Search:', this.searchQuery());
   }
 
   onCategoryChange(event: Event) {
     const select = event.target as HTMLSelectElement;
-    this.selectedCategory.set(select.value);
   }
 
   onSearchInput(event: Event) {

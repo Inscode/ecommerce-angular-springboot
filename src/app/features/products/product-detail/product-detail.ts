@@ -5,6 +5,7 @@ import { environment } from '../../../../environments/environment';
 import { single } from 'rxjs';
 import { Product } from '../../../core/models/product.model';
 import { ProductService } from '../../../core/services/product.service';
+import { CartService } from '../../../core/services/cart.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -24,7 +25,7 @@ export class ProductDetail implements OnInit{
   error = signal('');
 
 
-  constructor(private route: ActivatedRoute, private productService: ProductService) {}
+  constructor(private route: ActivatedRoute, private productService: ProductService, private cartService: CartService) {}
 
   ngOnInit(){
     this.route.params.subscribe(params => {
@@ -76,7 +77,19 @@ export class ProductDetail implements OnInit{
   }
 
   addToCart() {
-    console.log('Added to cart:', this.product(), 'Qty:', this.quantity());
+    const product = this.product();
+    if (!product) return;
+
+    this.cartService.addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: this.quantity(),
+      emoji: product.emoji,
+      category: product.categoryName
+    })
+
+    alert(`${product.name} add to Cart!`)
   }
 
   setTab(tab: string) {

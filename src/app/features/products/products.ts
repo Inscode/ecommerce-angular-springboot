@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { Product } from '../../core/models/product.model';
 import { ProductService } from '../../core/services/product.service';
+import { CartService } from '../../core/services/cart.service';  
 
 @Component({
   selector: 'app-products',
@@ -46,7 +47,7 @@ export class Products implements OnInit {
 
   
 
-  constructor(private route: ActivatedRoute, private ProductService: ProductService) {}
+  constructor(private route: ActivatedRoute, private ProductService: ProductService, private cartService: CartService) {}
 
   ngOnInit() {
   this.route.queryParams.subscribe(params => {
@@ -109,6 +110,15 @@ export class Products implements OnInit {
 
   setViewMode(mode: 'grid' | 'list') { this. viewMode.set(mode);}
   
-  addToCart(product: any) {console.log('Added to cart', product)}
+  addToCart(product: Product) {
+    this.cartService.addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1, 
+      emoji: product.emoji,
+      category: product.categoryName 
+    });
+  }
   
 }
