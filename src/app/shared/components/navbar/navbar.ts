@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/services/auth.service';  
@@ -29,10 +29,14 @@ export class Navbar {
     { name: "Today's Deals", slug: 'deals' },
   ];
 
-  constructor(public authService: AuthService, public cartService: CartService) {}
+  constructor(public authService: AuthService, public cartService: CartService, private router: Router) {}
 
   onSearch() {
-    console.log('Search:', this.searchQuery());
+    if (this.searchQuery().trim()) {
+      this.router.navigate(['/search'], {
+        queryParams: {q: this.searchQuery()}
+      });
+    }
   }
 
   onCategoryChange(event: Event) {
@@ -40,8 +44,9 @@ export class Navbar {
   }
 
   onSearchInput(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.searchQuery.set(input.value);
+    this.searchQuery.set(
+      (event.target as HTMLInputElement).value
+    )
   }
 
   toggleMenu() {

@@ -1,0 +1,74 @@
+<div class="search-page">
+  <div class="container">
+    <!-- Header -->
+    <div class="search-page__header">
+      <h1 class="search-page__title">
+        Search Results
+        <span class="search-page__query"> "{{ query() }}" </span>
+      </h1>
+      <p class="search-page__count" *ngIf="!isLoading() && results().length > 0">
+        {{ results().length }} results found
+      </p>
+    </div>
+
+    <!-- Loading -->
+    <div class="search-loading" *ngIf="isLoading()">
+      <div class="search-loading__spinner"></div>
+      <p>Searching with AI...</p>
+    </div>
+
+    <!-- Error -->
+    <div class="search-error" *ngIf="error()">
+      <span>⚠️</span>
+      <p>{{ error() }}</p>
+    </div>
+
+    <!-- No results -->
+    <div class="search-empty" *ngIf="!isLoading() && !error() && results().length === 0">
+      <span>🔍</span>
+      <h2>No results found</h2>
+      <p>Try a different search term or browse our categories</p>
+      <a routerLink="/products" class="btn-primary"> Browse All Products </a>
+    </div>
+
+    <!-- Results grid -->
+    <div class="search-results" *ngIf="results().length > 0 && !isLoading()">
+      <div class="pcard" *ngFor="let product of results()">
+        <a [routerLink]="['/products', product.id]" class="pcard__img">
+          <span class="pcard__emoji">{{ product.emoji }}</span>
+          <span
+            class="pcard__badge"
+            *ngIf="product.badge"
+            [class.badge--sale]="product.badge === 'SALE'"
+            [class.badge--new]="product.badge === 'NEW'"
+            [class.badge--best]="product.badge === 'BEST_SELLER'"
+          >
+            {{
+              product.badge === 'BEST_SELLER'
+                ? 'Best Seller'
+                : product.badge === 'NEW'
+                  ? 'New'
+                  : product.badge === 'SALE'
+                    ? 'Sale'
+                    : product.badge
+            }}
+          </span>
+        </a>
+        <div class="pcard__body">
+          <p class="pcard__category">{{ product.categoryName }}</p>
+          <a [routerLink]="['/products', product.id]" class="pcard__name">
+            {{ product.name }}
+          </a>
+          <div class="pcard__price">
+            <span class="pcard__price-now">
+              {{ currencySymbol }} {{ product.price | number }}
+            </span>
+          </div>
+          <button class="pcard__btn" [disabled]="!product.inStock" (click)="addToCart(product)">
+            {{ product.inStock ? 'Add to Cart' : 'Out of Stock' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

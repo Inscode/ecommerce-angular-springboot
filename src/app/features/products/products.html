@@ -97,15 +97,34 @@
       <!-- Stock filter -->
       <div class="sidebar__section">
         <h3 class="sidebar__title">Availability</h3>
-        <label class="sidebar__check"> <input type="checkbox" /> In Stock Only </label>
+        <label class="sidebar__check">
+          <input type="checkbox" [checked]="inStockOnly()" (change)="toggleInStock($event)" /> In
+          Stock Only
+        </label>
       </div>
 
       <!-- Badges filter -->
       <div class="sidebar__section">
         <h3 class="sidebar__title">Offers</h3>
-        <label class="sidebar__check"><input type="checkbox" /> On Sale</label>
-        <label class="sidebar__check"><input type="checkbox" /> New Arrivals</label>
-        <label class="sidebar__check"><input type="checkbox" /> Best Sellers</label>
+        <label class="sidebar__check"
+          ><input type="checkbox" (change)="toggleBadge('SALE', $event)" /> On Sale</label
+        >
+        <label class="sidebar__check"
+          ><input type="checkbox" (change)="toggleBadge('NEW', $event)" /> New Arrivals</label
+        >
+        <label class="sidebar__check"
+          ><input type="checkbox" (change)="toggleBadge('BEST_SELLER', $event)" /> Best
+          Sellers</label
+        >
+      </div>
+
+      <div
+        class="sidebar__section"
+        *ngIf="
+          inStockOnly() || selectedBadges().length > 0 || selectedCategory() || priceRange() < 50000
+        "
+      >
+        <button class="sidebar__clear" (click)="clearAllFilters()">Clear All Filters</button>
       </div>
     </aside>
 
@@ -122,11 +141,11 @@
         <button class="btn-primary" (click)="loadProducts()">Try Again</button>
       </div>
       <!-- No results -->
-      <div class="no-results" *ngIf="productList.length === 0">
+      <div class="no-results" *ngIf="productList.length === 0 && !isLoading() && !error()">
         <span>🔍</span>
         <h3>No products found</h3>
         <p>Try adjusting your filters or search query</p>
-        <button class="btn-primary" (click)="setCategory('')">Clear Filters</button>
+        <button class="btn-primary" (click)="clearAllFilters()">Clear Filters</button>
       </div>
 
       <!-- Grid view -->
@@ -137,9 +156,9 @@
             <span
               class="pcard__badge"
               *ngIf="product.badge"
-              [class.badge--sale]="product.badge === 'Sale'"
-              [class.badge--new]="product.badge === 'New'"
-              [class.badge--best]="product.badge === 'Best Seller'"
+              [class.badge--sale]="product.badge === 'SALE'"
+              [class.badge--new]="product.badge === 'NEW'"
+              [class.badge--best]="product.badge === 'BEST_SELLER'"
             >
               {{ product.badge }}
             </span>

@@ -23,6 +23,8 @@ export class Products implements OnInit {
   viewMode = signal<'grid' | 'list'> ('grid');
   isLoading = signal(true);
   error = signal('');
+  inStockOnly = signal(false);
+  selectedBadges = signal<string[]>([]);
 
   allProducts = signal<Product[]>([]);
 
@@ -53,17 +55,16 @@ export class Products implements OnInit {
   this.route.queryParams.subscribe(params => {
   const category = params['category'] || '';
   this.selectedCategory.set(category);
-  this.loadProducts(category);
 });
+
+this.loadProducts();
   }
 
   loadProducts(category?:string) {
     this.isLoading.set(true);
     this.error.set('');
 
-    const request = category ? this.ProductService.getProductsByCategory(category) : this.ProductService.getAllProducts();
-
-    request.subscribe({
+    this.ProductService.getAllProducts().subscribe({
       next: (products) => {
         this.allProducts.set(products);
         this.isLoading.set(false);
@@ -79,13 +80,35 @@ export class Products implements OnInit {
   get productList() {
     let products = [...this.allProducts()];
 
+    if (this.selectedCategory()) {
+      products = products.filter(p => 
+        p.categorySlug === this.selectedCategory()
+      )
+    }
+
     if (this.searchQuery()) {
       const q = this.searchQuery().toLowerCase();
-      products = products.filter(p => p.name.includes(q));
+      products = products.filter(p => p.name.toLowerCase().includes(q));
     }
+
+    //price filter
 
     products = products.filter(p => p.price <= this.priceRange());
 
+
+    // in stock filter
+    if (this.inStockOnly()) {
+      products = products.filter(p => p.inStock);
+    }
+
+    // badge filter
+    if (this.selectedBadges().length > 0) {
+      products = products.filter(p => 
+        p.badge && this.selectedBadges().includes(p.badge)
+      );
+    }
+
+    //sort
     switch(this.selectedSort()) {
       case 'price-asc': products.sort((a,b) => a.price - b.price); break;
       case 'price-desc': products.sort((a, b) => b.price - a.price); break;
@@ -93,7 +116,8 @@ export class Products implements OnInit {
        return products;
   }
 
-  setCategory(slug: string) { this.selectedCategory.set(slug);
+  setCategory(slug: string) { 
+    this.selectedCategory.set(slug);
   }
 
   setSort(event: Event) {
@@ -120,5 +144,31 @@ export class Products implements OnInit {
       category: product.categoryName 
     });
   }
-  
+
+  toggleInStock(event: Event) {
+    this.inStockOnly.set(
+      (event.target as HTMLInputElement).checked
+    )
+  }
+
+  toggleBadge(badge: string, event: Event) {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
+      this.selectedBadges.update(badges => [...badges, badge]);
+    } else {
+      this.selectedBadges.update(badges => 
+        badges.filter(b => b!== badge)
+      );
+    }
+  }
+
+   clearAllFilters() {
+  this.selectedCategory.set('');
+  this.searchQuery.set('');
+  this.priceRange.set(50000);
+  this.inStockOnly.set(false);
+  this.selectedBadges.set([]);
+  this.selectedSort.set('default');
+}
+
 }
