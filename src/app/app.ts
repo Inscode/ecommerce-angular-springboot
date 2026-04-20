@@ -4,17 +4,19 @@ import { Navbar } from './shared/components/navbar/navbar';
 import { Footer } from './shared/components/footer/footer';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs';
+import { Chatbot } from './shared/components/chatbot/chatbot';
 
 @Component({
   selector: 'app-root',
   standalone:true, 
-  imports: [RouterOutlet, Navbar, Footer, CommonModule],
+  imports: [RouterOutlet, Navbar, Footer, CommonModule, Chatbot],
   template: `
   <app-navbar *ngIf="showLayout()" />
   <main>
     <router-outlet />
   </main>
-  <app-footer *ngIf="showLayout()" />`,
+  <app-footer *ngIf="showLayout()" />
+  <app-chatbot *ngIf="showLayout()" />`,
   styles: [`
     main {
     min-height: calc(100vh - 70px);
