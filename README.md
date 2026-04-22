@@ -113,7 +113,7 @@ A modern full-stack e-commerce web application built with **Angular 21** and **S
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/ecommerce-angular-springboot.git
+git clone https://github.com/Inscode/ecommerce-angular-springboot.git
 
 # Navigate to frontend
 cd ghanim-enterprises
