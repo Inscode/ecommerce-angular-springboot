@@ -1,5 +1,4 @@
 import { AfterViewChecked, Component, ElementRef, signal, ViewChild } from '@angular/core';
-import { single, timestamp } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { CommonModule } from '@angular/common';
 
