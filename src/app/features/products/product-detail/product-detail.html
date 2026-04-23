@@ -1,3 +1,8 @@
+<div class="detail-loading" *ngIf="isLoading()">
+  <div class="loading-spinner"></div>
+  <p>Loading product...</p>
+</div>
+
 <div class="detail" *ngIf="product()">
   <!-- Breadcrumb -->
   <div class="breadcrumb">
@@ -18,17 +23,52 @@
   <div class="container detail__main">
     <!-- Product image -->
     <div class="detail__image">
-      <div class="detail__image-main">
-        <img
-          *ngIf="product()!.imageUrl"
-          [src]="product()!.imageUrl"
-          [alt]="product()!.name"
-          class="detail__real-img"
-        />
-        <span class="detail__emoji" *ngIf="!product()!.imageUrl">
-          {{ product()!.emoji }}
-        </span>
+      <!-- Main image display -->
+      <div class="detail__carousel">
+        <button
+          class="detail__carousel-btn detail__carousel-btn--prev"
+          (click)="prevImage()"
+          *ngIf="carouselImages.length > 1"
+        >
+          ‹
+        </button>
+
+        <div class="detail__image-main">
+          <img
+            *ngIf="carouselImages[activeImageIndex()]?.type === 'image'"
+            [src]="carouselImages[activeImageIndex()].src"
+            [alt]="product()!.name"
+            class="detail__real-img"
+          />
+          <span *ngIf="carouselImages[activeImageIndex()]?.type === 'emoji'" class="detail__emoji">
+            {{ carouselImages[activeImageIndex()].src }}
+          </span>
+        </div>
+
+        <button
+          class="detail__carousel-btn detail__carousel-btn--next"
+          (click)="nextImage()"
+          *ngIf="carouselImages.length > 1"
+        >
+          ›
+        </button>
       </div>
+
+      <!-- Thumbnail strip -->
+      <div class="detail__thumbnails" *ngIf="carouselImages.length > 1">
+        <button
+          class="detail__thumb"
+          *ngFor="let img of carouselImages; let i = index"
+          [class.active]="activeImageIndex() === i"
+          (click)="setActiveImage(i)"
+        >
+          <img *ngIf="img.type === 'image'" [src]="img.src" alt="thumbnail" />
+          <span *ngIf="img.type === 'emoji'">
+            {{ img.src }}
+          </span>
+        </button>
+      </div>
+
       <div class="detail__badges">
         <span class="detail__badge detail__badge--sale" *ngIf="product().badge === 'Sale'">
           Sale
@@ -196,17 +236,28 @@
 
     <!-- Description tab -->
     <div class="detail__tab-content" *ngIf="selectedTab() === 'description'">
-      <p>{{ product().description }}</p>
+      <p *ngIf="product()!.description">
+        {{ product()!.description }}
+      </p>
+      <p *ngIf="!product()!.description" style="color: var(--text-muted); font-style: italic">
+        No description available.
+      </p>
     </div>
 
     <!-- Specs tab -->
     <div class="detail__tab-content" *ngIf="selectedTab() === 'specs'">
-      <table class="detail__specs-table">
-        <tr *ngFor="let spec of product().specs">
+      <!-- Parsed table format -->
+      <table class="detail__specs-table" *ngIf="parsedSpecs.length > 0">
+        <tr *ngFor="let spec of parsedSpecs">
           <td class="detail__spec-label">{{ spec.label }}</td>
           <td class="detail__spec-value">{{ spec.value }}</td>
         </tr>
       </table>
+
+      <!-- No specs -->
+      <p *ngIf="parsedSpecs.length === 0" style="color: var(--text-muted); font-style: italic">
+        No specifications available.
+      </p>
     </div>
 
     <!-- Reviews tab -->
@@ -240,7 +291,7 @@
 </div>
 
 <!-- Not found -->
-<div class="detail-notfound" *ngIf="!product()">
+<div class="detail-notfound" *ngIf="!product() && !isLoading()">
   <div class="container">
     <span>🔍</span>
     <h2>Product not found</h2>

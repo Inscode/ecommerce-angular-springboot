@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment';
-import { single } from 'rxjs';
 import { Product } from '../../../core/models/product.model';
 import { ProductService } from '../../../core/services/product.service';
 import { CartService } from '../../../core/services/cart.service';
@@ -23,6 +22,7 @@ export class ProductDetail implements OnInit{
   selectedTab = signal('description');
   isLoading = signal(true);
   error = signal('');
+  activeImageIndex = signal(0);
 
 
   constructor(private route: ActivatedRoute, private productService: ProductService, private cartService: CartService) {}
@@ -95,4 +95,55 @@ export class ProductDetail implements OnInit{
   setTab(tab: string) {
     this.selectedTab.set(tab);
   }
+
+ get parsedSpecs() {
+  const product = this.product();
+  if (!product || !product.specifications) return [];
+
+  return product.specifications
+    .split('\n')
+    .filter((line: String) => line.trim())
+    .map((line: string) => {
+      const colonIndex = line.indexOf(':');
+      if (colonIndex === -1) {
+        return { label: line.trim(), value: '' };
+      }
+      return {
+        label: line.substring(0, colonIndex).trim(),
+        value: line.substring(colonIndex + 1).trim()
+      };
+    });
+}
+
+ get carouselImages() {
+      const product = this.product();
+      if (!product) return [];
+
+      const images = [];
+      if (product.imageUrl) {
+        images.push({type: 'image', src: product.imageUrl});
+      }
+      images.push({type: 'emoji', src: product.emoji});
+      return images;
+ }
+
+ nextImage() {
+  const max = this.carouselImages.length - 1;
+  this.activeImageIndex.set(
+    this.activeImageIndex() >= max ? 0 : this.activeImageIndex() + 1
+  );
+ }
+
+ prevImage() {
+  const max = this.carouselImages.length - 1; 
+  this.activeImageIndex.set(
+    this.activeImageIndex() <= 0 ? max : this.activeImageIndex() - 1
+  );
+ }
+
+ setActiveImage(index: number){
+  this.activeImageIndex.set(index);
+ }
+
+
 }
