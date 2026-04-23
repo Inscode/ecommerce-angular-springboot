@@ -343,6 +343,11 @@
     }
   }
 
+  .product-card__img-link {
+    text-decoration: none;
+    display: block;
+  }
+
   &__body {
     padding: 12px;
   }

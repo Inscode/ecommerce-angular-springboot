@@ -90,7 +90,7 @@
         <a routerLink="/products" class="featured__link">View all</a>
       </div>
       <div class="featured__scroller">
-        <div class="product-card" *ngFor="let product of featuredProducts()">
+        <div class="product-card" *ngFor="let product of featuredProducts()" style="cursor: pointer" [routerLink]="['/products', product.id]">
           <div class="product-card__img">
             <!-- Real image if available -->
             <img
