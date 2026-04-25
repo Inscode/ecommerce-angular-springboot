@@ -69,10 +69,12 @@
             />
           </div>
         </div>
+
         <div class="admin-form__field admin-form__field--full">
           <label>Description</label>
           <textarea
             placeholder="Product description..."
+            [value]="newProduct().description"
             rows="3"
             (input)="onNewFieldInput('description', $event)"
           >
@@ -138,14 +140,29 @@
               <option value="BEST_SELLER">Best Seller</option>
             </select>
           </div>
-          <div class="admin-form__field">
-            <label>Image URL</label>
-            <input
-              type="text"
-              placeholder="https://..."
-              [value]="newProduct().imageUrl"
-              (input)="onNewFieldInput('imageUrl', $event)"
-            />
+          <!-- Image URLs section -->
+          <div class="admin-form__field admin-form__field--full">
+            <label>Product Images (Cloudinary URLs)</label>
+            <div class="image-url-inputs">
+              <div
+                class="image-url-input"
+                *ngFor="let url of newProduct().imageUrls; let i = index; trackBy: trackByIndex"
+              >
+                <span class="image-url-input__label">
+                  {{ i === 0 ? '⭐ Main' : 'Image ' + (i + 1) }}
+                </span>
+                <input
+                  type="text"
+                  [placeholder]="'https://res.cloudinary.com/...'"
+                  [value]="url"
+                  (blur)="onImageUrlInput(i, $event)"
+                  (keyup.enter)="onImageUrlInput(i, $event)"
+                />
+                <div class="image-url-input__preview" *ngIf="url">
+                  <img [src]="url" alt="preview" onerror="this.style.display = 'none'" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -238,7 +255,7 @@
               type="number"
               placeholder="Enter cost price"
               [value]="editProduct()?.costPrice ?? ''"
-              (input)="onNewFieldInput('costPrice', $event)"
+              (input)="onEditFieldInput('costPrice', $event)"
             />
           </div>
           <div class="admin-form__field">
@@ -262,13 +279,32 @@
               </option>
             </select>
           </div>
-          <div class="admin-form__field">
-            <label>Image URL</label>
-            <input
-              type="text"
-              [value]="editProduct().imageUrl || ''"
-              (input)="onEditFieldInput('imageUrl', $event)"
-            />
+          <div class="admin-form__field admin-form__field--full">
+            <label>Product Images (Cloudinary URLs)</label>
+            <div class="image-url-inputs">
+              <div
+                class="image-url-input"
+                *ngFor="
+                  let url of editProduct()?.imageUrls || [];
+                  let i = index;
+                  trackBy: trackByIndex
+                "
+              >
+                <span class="image-url-input__label">
+                  {{ i === 0 ? '⭐ Main' : 'Image ' + (i + 1) }}
+                </span>
+                <input
+                  type="text"
+                  [placeholder]="'https://res.cloudinary.com/...'"
+                  [value]="url"
+                  (blur)="onEditImageUrlInput(i, $event)"
+                  (keyup.enter)="onEditImageUrlInput(i, $event)"
+                />
+                <div class="image-url-input__preview" *ngIf="url">
+                  <img [src]="url" alt="preview" onerror="this.style.display = 'none'" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

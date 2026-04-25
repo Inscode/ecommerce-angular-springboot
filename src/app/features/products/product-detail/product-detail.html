@@ -23,60 +23,73 @@
   <div class="container detail__main">
     <!-- Product image -->
     <div class="detail__image">
-      <!-- Main image display -->
-      <div class="detail__carousel">
+      <!-- Main image with zoom -->
+      <div class="detail__main-image-wrap">
+        <!-- Prev button -->
         <button
-          class="detail__carousel-btn detail__carousel-btn--prev"
+          class="detail__nav-btn detail__nav-btn--prev"
           (click)="prevImage()"
-          *ngIf="carouselImages.length > 1"
+          *ngIf="allImages.length > 1"
         >
           ‹
         </button>
 
-        <div class="detail__image-main">
+        <!-- Main image container -->
+        <div
+          class="detail__main-image"
+          [class.zoomed]="isZoomed()"
+          (mousemove)="onMouseMove($event)"
+          (mouseleave)="onMouseLeave()"
+        >
+          <!-- Real image -->
           <img
-            *ngIf="carouselImages[activeImageIndex()]?.type === 'image'"
-            [src]="carouselImages[activeImageIndex()].src"
+            *ngIf="activeImage"
+            [src]="activeImage"
             [alt]="product()!.name"
-            class="detail__real-img"
+            class="detail__main-img"
+            [style.transform-origin]="zoomPosition().x + '% ' + zoomPosition().y + '%'"
+            [class.zoomed-img]="isZoomed()"
           />
-          <span *ngIf="carouselImages[activeImageIndex()]?.type === 'emoji'" class="detail__emoji">
-            {{ carouselImages[activeImageIndex()].src }}
+
+          <!-- Emoji fallback -->
+          <span *ngIf="!activeImage" class="detail__emoji">
+            {{ product()!.emoji }}
           </span>
+
+          <!-- Zoom hint -->
+          <div class="detail__zoom-hint" *ngIf="activeImage && !isZoomed()">🔍 Hover to zoom</div>
         </div>
 
+        <!-- Next button -->
         <button
-          class="detail__carousel-btn detail__carousel-btn--next"
+          class="detail__nav-btn detail__nav-btn--next"
           (click)="nextImage()"
-          *ngIf="carouselImages.length > 1"
+          *ngIf="allImages.length > 1"
         >
           ›
         </button>
       </div>
 
       <!-- Thumbnail strip -->
-      <div class="detail__thumbnails" *ngIf="carouselImages.length > 1">
-        <button
+      <div class="detail__thumbnails" *ngIf="allImages.length > 1">
+        <div
           class="detail__thumb"
-          *ngFor="let img of carouselImages; let i = index"
+          *ngFor="let img of allImages; let i = index"
           [class.active]="activeImageIndex() === i"
+          (mouseenter)="setActiveImage(i)"
           (click)="setActiveImage(i)"
         >
-          <img *ngIf="img.type === 'image'" [src]="img.src" alt="thumbnail" />
-          <span *ngIf="img.type === 'emoji'">
-            {{ img.src }}
-          </span>
-        </button>
+          <img [src]="img" [alt]="'Image ' + (i + 1)" onerror="this.style.display = 'none'" />
+        </div>
       </div>
 
+      <!-- Badges -->
       <div class="detail__badges">
-        <span class="detail__badge detail__badge--sale" *ngIf="product().badge === 'Sale'">
-          Sale
-        </span>
-        <span class="detail__badge detail__badge--new" *ngIf="product().badge === 'New'">
-          New
-        </span>
-        <span class="detail__badge detail__badge--best" *ngIf="product().badge === 'Best Seller'">
+        <span class="detail__badge detail__badge--sale" *ngIf="product()!.badge === 'SALE'"
+          >Sale</span
+        >
+        <span class="detail__badge detail__badge--new" *ngIf="product()!.badge === 'NEW'">New</span>
+        <span class="detail__badge detail__badge--best" *ngIf="product()!.badge === 'BEST_SELLER'">
           Best Seller
         </span>
       </div>
@@ -112,7 +125,7 @@
       </div>
 
       <!-- Short description -->
-      <p class="detail__desc">{{ product().description }}</p>
+      <!-- <p class="detail__desc">{{ product().description }}</p> -->
 
       <!-- Quantity -->
       <div class="detail__qty" *ngIf="product().inStock">
@@ -236,10 +249,20 @@
 
     <!-- Description tab -->
     <div class="detail__tab-content" *ngIf="selectedTab() === 'description'">
-      <p *ngIf="product()!.description">
-        {{ product()!.description }}
+      <ul class="detail__desc-list" *ngIf="descriptionPoints.length > 1">
+        <li *ngFor="let point of descriptionPoints">
+          {{ point }}
+        </li>
+      </ul>
+
+      <p *ngIf="descriptionPoints.length === 1">
+        {{ descriptionPoints[0] }}
       </p>
-      <p *ngIf="!product()!.description" style="color: var(--text-muted); font-style: italic">
+
+      <p
+        *ngIf="descriptionPoints.length === 0"
+        style="color: var(--text-muted); font-style: italic"
+      >
         No description available.
       </p>
     </div>

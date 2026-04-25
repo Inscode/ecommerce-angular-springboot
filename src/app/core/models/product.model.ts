@@ -7,6 +7,7 @@ export interface Product {
   stock: number;
   emoji: string;
   imageUrl: string | null;
+  imageUrls: string[];
   badge: string | null;
   categoryName: string;
   categorySlug: string;
@@ -24,7 +25,7 @@ export interface ProductRequest {
   emoji: string;
   categoryId: number;
   badge?: string;
-  imageUrl?: string;
+  imageUrls?: string[]
 }
 
 export interface AdminProduct {
@@ -40,6 +41,7 @@ export interface AdminProduct {
   stock: number;
   emoji: string;
   imageUrl: string | null;
+  imageUrls: string[];
   badge: string | null;
   categoryName: string;
   categorySlug: string;

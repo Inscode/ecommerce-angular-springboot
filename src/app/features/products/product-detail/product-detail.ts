@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, linkedSignal, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { Product } from '../../../core/models/product.model';
@@ -23,6 +23,8 @@ export class ProductDetail implements OnInit{
   isLoading = signal(true);
   error = signal('');
   activeImageIndex = signal(0);
+  isZoomed = signal(false);
+  zoomPosition = signal({x: 50, y: 50});
 
 
   constructor(private route: ActivatedRoute, private productService: ProductService, private cartService: CartService) {}
@@ -127,15 +129,62 @@ export class ProductDetail implements OnInit{
       return images;
  }
 
+ get descriptionPoints(): string[] {
+  const desc = this.product()?.description;
+  if (!desc) return [];
+
+  // if contains bullet points
+  if (desc.includes('•')) {
+    return desc.split('•')
+    .map((line: string) => line.trim())
+    .filter((line: string) => line.length > 0);
+  }
+
+  // otherwise split by newline
+  if (desc.includes('\n')) {
+    return desc.split('\n')
+    .map((line: string) => line.trim())
+    .filter((line: string) => line.length > 0);
+  }
+
+  return [desc];
+ }
+
+ get allImages(): string[] {
+  const product = this.product();
+  if (!product) return [];
+
+
+  // use imageurls array if available
+  if (product.imageUrls && product.imageUrls.length > 0) {
+     return product.imageUrls.filter((u: string) => u && u.trim() !== '');
+  }
+
+  // fall back to single imageurl
+  if (product.imageUrl) {
+    return [product.imageUrl];
+  }
+
+  return [];
+  
+ }
+
+ get activeImage(): string | null {
+  const images = this.allImages;
+  if (images.length === 0) return null;
+  return images[this.activeImageIndex()] || null;
+ }
+
  nextImage() {
-  const max = this.carouselImages.length - 1;
+  const max = this.allImages.length - 1;
   this.activeImageIndex.set(
-    this.activeImageIndex() >= max ? 0 : this.activeImageIndex() + 1
+    this.activeImageIndex() >= max ? 0: this.activeImageIndex() + 1
   );
  }
 
+
  prevImage() {
-  const max = this.carouselImages.length - 1; 
+  const max = this.allImages.length - 1; 
   this.activeImageIndex.set(
     this.activeImageIndex() <= 0 ? max : this.activeImageIndex() - 1
   );
@@ -143,6 +192,18 @@ export class ProductDetail implements OnInit{
 
  setActiveImage(index: number){
   this.activeImageIndex.set(index);
+ }
+
+ onMouseMove(event: MouseEvent) {
+  const rect = (event.target as HTMLElement) .getBoundingClientRect();
+  const x = ((event.clientX - rect.left)/ rect.width) * 100;
+  const y = ((event.clientY - rect.top) / rect.height) * 100;
+  this.zoomPosition.set({x, y});
+  this.isZoomed.set(true);
+ }
+
+ onMouseLeave() {
+  this.isZoomed.set(false);
  }
 
 

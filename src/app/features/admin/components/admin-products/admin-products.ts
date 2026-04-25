@@ -33,7 +33,7 @@ export class AdminProducts implements OnInit {
     costPrice: null as number | null,
     stock: null as number | null,
     emoji: '📦',
-    imageUrl: '',
+    imageUrls: ['', '', '', ''] as string[],
     badge: '',
     categoryId: 0
   }
@@ -125,6 +125,9 @@ export class AdminProducts implements OnInit {
       c => c.slug === product.categorySlug
     );
 
+    const imageUrls = product.imageUrls || [];
+    while (imageUrls.length < 4) imageUrls.push('');
+
     this.editProduct.set({
       id: product.id,
       name: product.name,
@@ -135,7 +138,7 @@ export class AdminProducts implements OnInit {
       costPrice: product.costPrice || 0,
       stock: product.stock,
       emoji : product.emoji || '📦',
-      imageUrl: product.imageUrl || '',
+      imageUrls: imageUrls,
       badge: product.badge || '',
       categoryId: category?.id || 0
     });
@@ -165,9 +168,12 @@ export class AdminProducts implements OnInit {
       specifications: p.specifications?.trim() || undefined,
       retailPrice: p.retailPrice!,
       wholesalePrice: p.wholesalePrice || p.retailPrice,
+      costPrice: p.costPrice || undefined,
       stock: p.stock || 0,
       emoji: p.emoji,
-      imageUrl: p.imageUrl,
+      imageUrls: p.imageUrls.filter(url =>
+        url && url.trim() !== ''
+      ),
       badge: p.badge || undefined,
       categoryId: p.categoryId
     };
@@ -201,7 +207,9 @@ export class AdminProducts implements OnInit {
       costPrice: p.costPrice || undefined,
       stock: p.stock,
       emoji: p.emoji,
-      imageUrl: p.imageUrl,
+      imageUrls: p.imageUrls.filter((url: string) =>
+        url && url.trim() !== ''
+      ),
       badge: p.badge || undefined,
       categoryId: p.categoryId
     };
@@ -250,5 +258,27 @@ export class AdminProducts implements OnInit {
     if (!product.inStock) return 'Out of Stock';
     if (product.stock < 10) return 'Low Stock';
     return 'Active';
+  }
+
+  onImageUrlInput(index: number, event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.newProduct.update(p => {
+      const urls = [...p.imageUrls];
+      urls[index] = value;
+      return {...p, imageUrls: urls};
+    });
+  }
+
+  onEditImageUrlInput(index: number, event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.editProduct.update((p: any) => {
+      const urls = [...(p.imageUrls || ['','',''])];
+      urls[index] = value;
+      return {...p, imageUrls: urls};
+    })
+  }
+
+  trackByIndex(index: number): number {
+    return index;
   }
 }
