@@ -1,7 +1,9 @@
 export const environment = {
-    production: false,
+    production: true,
     shopName: 'Ghanim Enterprises',
-    apiUrl: 'https://web-production-81490.up.railway.app/api',
+    apiUrl: 'https://api.ghanimenterprises.lk/api',
     currency: 'LKR',
-    currencySymbol: 'Rs. '
+    currencySymbol: 'Rs. ',
+    siteUrl: 'https://ghanimenterprises.lk',
+    imagekitEndpoint: 'https://ik.imagekit.io/jljsfouwenlblj'
 };

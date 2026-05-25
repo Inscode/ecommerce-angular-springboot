@@ -1,4 +1,4 @@
-import { CommonModule, ViewportScroller } from '@angular/common';
+import { CommonModule, Location, ViewportScroller } from '@angular/common';
 import { Component, ElementRef, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment';
@@ -34,7 +34,9 @@ export class ProductDetail implements OnInit{
   relatedTrack!: ElementRef;
 
 
-  constructor(private route: ActivatedRoute, private productService: ProductService, private cartService: CartService, private seo: SeoService, private wishlistService: WishListService) {}
+  constructor(private route: ActivatedRoute, private productService: ProductService, public cartService: CartService, private seo: SeoService, private wishlistService: WishListService, private location: Location, private router: Router) {}
+
+  goBack() { this.location.back(); }
 
   ngOnInit(){
     this.route.params.subscribe(params => {
@@ -54,11 +56,12 @@ export class ProductDetail implements OnInit{
         this.loadRelated(product.categorySlug, id);
 
         this.seo.updateProductMeta({
-             name: product.name,
-        description: product.description,
-        price: product.price,
-        imageUrl: product.imageUrl,
-        categoryName: product.categoryName
+          name: product.name,
+          description: product.description,
+          price: product.price,
+          imageUrl: product.imageUrl,
+          categoryName: product.categoryName,
+          id: product.id
         });
       },
       error: () => {
@@ -105,7 +108,12 @@ export class ProductDetail implements OnInit{
       emoji: product.emoji,
       category: product.categoryName,
       imageUrl: product.imageUrl
-    })
+    });
+  }
+
+  buyNow() {
+    this.addToCart();
+    this.router.navigate(['/cart']);
   }
 
   setTab(tab: string) {

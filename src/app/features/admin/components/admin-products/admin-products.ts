@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
-import { AdminProduct, Product, ProductRequest } from '../../../../core/models/product.model';
+import { AdminProduct, ProductRequest } from '../../../../core/models/product.model';
 import { Category } from '../../../../core/models/category.model';
 import { ProductService } from '../../../../core/services/product.service';
-import { Admin } from '../../admin';
 import { ToastService } from '../../../../core/services/toast.service';
+import { CloudinaryUploadService } from '../../../../core/services/cloudinary-upload.service';
 
 @Component({
   selector: 'app-admin-products',
@@ -45,7 +45,13 @@ export class AdminProducts implements OnInit {
 
   editProduct = signal<any>(null);
 
-  constructor(private productService: ProductService, private toast: ToastService){}
+  uploadingSlot = signal<string | null>(null); // 'new-0', 'edit-2', etc.
+
+  constructor(
+    private productService: ProductService,
+    private toast: ToastService,
+    private cloudinaryUpload: CloudinaryUploadService
+  ) {}
 
   ngOnInit() {
     this.loadProducts();
@@ -153,16 +159,11 @@ export class AdminProducts implements OnInit {
   }
 
   addProduct() {
-     const p = this.newProduct();
-  console.log('Current form state:', p);
-  console.log('name:', p.name);
-  console.log('categoryId:', p.categoryId, typeof p.categoryId);
-  console.log('retailPrice:', p.retailPrice, typeof p.retailPrice);
+    const p = this.newProduct();
 
-  if (!p.name || !p.categoryId || !p.retailPrice) {
-    console.log('BLOCKED by validation');
-    return;   
-  }
+    if (!p.name || !p.categoryId || !p.retailPrice) return;
+
+    this.isSaving.set(true);
     const request: ProductRequest = {
       name: p.name,
       description: p.description?.trim() || '',
@@ -242,7 +243,7 @@ export class AdminProducts implements OnInit {
         this.deleteConfirmId.set(null);
         this.loadProducts();
       },
-      error: (err) => {
+      error: () => {
         this.toast.error('Failed to delete product');
         this.deleteConfirmId.set(null);
       }
@@ -277,6 +278,52 @@ export class AdminProducts implements OnInit {
       urls[index] = value;
       return {...p, imageUrls: urls};
     })
+  }
+
+  triggerFileInput(id: string) {
+    document.getElementById(id)?.click();
+  }
+
+  async onNewFileSelected(index: number, event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
+    const slot = `new-${index}`;
+    this.uploadingSlot.set(slot);
+    try {
+      const url = await this.cloudinaryUpload.upload(file);
+      this.newProduct.update(p => {
+        const urls = [...p.imageUrls];
+        urls[index] = url;
+        return { ...p, imageUrls: urls };
+      });
+    } catch {
+      this.toast.error('Image upload failed. Please try again.');
+    } finally {
+      this.uploadingSlot.set(null);
+      (event.target as HTMLInputElement).value = '';
+    }
+  }
+
+  async onEditFileSelected(index: number, event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
+    const slot = `edit-${index}`;
+    this.uploadingSlot.set(slot);
+    try {
+      const url = await this.cloudinaryUpload.upload(file);
+      this.editProduct.update((p: any) => {
+        const urls = [...(p.imageUrls || ['', '', '', ''])];
+        urls[index] = url;
+        return { ...p, imageUrls: urls };
+      });
+    } catch {
+      this.toast.error('Image upload failed. Please try again.');
+    } finally {
+      this.uploadingSlot.set(null);
+      (event.target as HTMLInputElement).value = '';
+    }
   }
 
   trackByIndex(index: number): number {

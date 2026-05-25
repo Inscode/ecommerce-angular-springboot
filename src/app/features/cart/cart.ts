@@ -1,6 +1,6 @@
 import { Component, signal, computed, effect } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
+import { CommonModule, Location } from '@angular/common';
 import { environment } from '../../../environments/environment';
 import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -27,7 +27,9 @@ export class Cart {
   constructor(
     public cartService: CartService,
     public authService: AuthService,
-    private toast: ToastService
+    private toast: ToastService,
+    private router: Router,
+    private location: Location
   ) {
     effect(() => {
       if (this.cartService.orderSuccess()) {
@@ -41,6 +43,8 @@ export class Cart {
       }
     })
   }
+
+  goBack() { this.location.back(); }
 
   get subtotal() { return this.cartService.subtotal(); }
   get totalItems() { return this.cartService.totalItems(); }
@@ -103,41 +107,33 @@ export class Cart {
   }
 
   checkout() {
-    if (!this.authService.isLoggedIn()) {
-      this.cartService.placeOrder();
-      return;
-    }
-    this.showCheckoutModal.set(true);
+  if (!this.authService.isLoggedIn()) {
+    this.router.navigate(['/auth/login'], {
+      queryParams: { returnUrl: '/cart' }
+    });
+    return;
   }
+  this.showCheckoutModal.set(true);
+}
 
   onModalClosed(){
     this.showCheckoutModal.set(false);
   }
 
   onOrderSubmitted(formData: CheckoutFormData) {
-    const deliveryAddress = [
-      formData.streetAddress,
-      formData.landmark,
-      formData.city,
-      formData.district,
-      formData.province,
-      formData.postalCode ? `(${formData.postalCode})` : '',
-    ]
-      .filter(Boolean)
-      .join(', ');
- 
-    const notes = [
-      `Contact: +94${formData.phone} (${formData.fullName})`,
-      `Label: ${formData.addressLabel}`,
-      formData.notes,
-    ]
-      .filter(Boolean)
-      .join(' | ');
- 
     this.cartService.placeOrder(
-      this.promoApplied() ? this.promoCode() : undefined,
-      deliveryAddress,
-      notes
+      {
+        recipientName: formData.fullName,
+        recipientPhone: formData.phone,
+        province: formData.province,
+        district: formData.district,
+        landmark: formData.landmark,
+        cityTown: formData.city,
+        postalCode: formData.postalCode || undefined,
+        streetAddress: formData.streetAddress,
+        deliveryNotes: formData.notes || undefined,
+      },
+      this.promoApplied() ? this.promoCode() : undefined
     );
   }
 

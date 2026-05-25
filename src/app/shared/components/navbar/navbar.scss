@@ -1,4 +1,4 @@
-.header {
+﻿.header {
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -8,6 +8,10 @@
 // Main navbar
 .navbar {
   background: var(--primary);
+
+  @media (max-width: 768px) {
+    background: var(--primary);
+  }
 
   &__action-icon {
     position: relative;
@@ -106,7 +110,79 @@
       color: var(--accent);
       letter-spacing: 1.2px;
       text-transform: uppercase;
+      display: none;
+
+      @media (max-width: 768px) {
+        display: block;
+        font-size: 0.62rem;
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.75);
+        letter-spacing: 0;
+        text-transform: none;
+      }
     }
+  }
+
+  // Mobile top icons
+  &__mobile-icons {
+    display: none;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    margin-left: auto;
+
+    @media (max-width: 768px) {
+      display: flex;
+    }
+  }
+
+  &__mobile-bell {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+    padding: 0;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  }
+
+  &__mobile-cart-link {
+    position: relative;
+    color: white;
+    text-decoration: none;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__mobile-cart-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: var(--accent);
+    color: var(--primary);
+    font-size: 0.58rem;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+    line-height: 1;
   }
 
   // Search bar
@@ -116,15 +192,26 @@
     align-items: center;
     background: white;
     border-radius: 8px;
-    overflow: hidden;
+    overflow: visible; // was: hidden — this was clipping the button
     height: 40px;
     border: 2px solid transparent;
     transition: var(--transition);
+    min-width: 0; // prevents flex child from overflowing parent
+
+    @media (max-width: 768px) {
+      display: none;
+    }
 
     &:focus-within {
       border-color: var(--accent);
     }
 
+    // Clip only the internal children, not the outer border
+    & > * {
+      overflow: hidden;
+    }
+
+    // Round left corners on the first visible child (input on mobile, select on desktop)
     &-select {
       height: 100%;
       padding: 0 8px;
@@ -135,6 +222,7 @@
       color: var(--text-primary);
       cursor: pointer;
       max-width: 120px;
+      border-radius: 6px 0 0 6px; // round left edge
 
       @media (max-width: 768px) {
         display: none;
@@ -161,6 +249,13 @@
       font-size: 0.95rem;
       color: var(--text-primary);
       font-family: 'Inter', sans-serif;
+      min-width: 0; // critical: lets input shrink on narrow screens
+
+      @media (max-width: 768px) {
+        font-size: 0.85rem; // slightly smaller so placeholder fits
+        padding: 0 8px;
+        border-radius: 6px 0 0 6px; // round left edge when select is hidden
+      }
 
       &::placeholder {
         color: #999;
@@ -178,7 +273,12 @@
       justify-content: center;
       color: var(--primary);
       transition: var(--transition);
-      flex-shrink: 0;
+      flex-shrink: 0; // never compress — was causing the icon to be cut
+      border-radius: 0 6px 6px 0; // round right edge to match container shape
+
+      @media (max-width: 768px) {
+        padding: 0 12px; // slightly tighter on mobile but still fully visible
+      }
 
       &:hover {
         background: var(--accent-light);
@@ -304,7 +404,7 @@
     }
 
     @media (max-width: 768px) {
-      display: flex;
+      display: none; // bottom nav replaces hamburger on mobile
     }
   }
 
@@ -316,7 +416,7 @@
     width: 80%;
     max-width: 320px;
     height: 100vh;
-    background: #131921;
+    background: #112040;
     z-index: 1000;
     padding: 80px 0 24px;
     overflow-y: auto;
@@ -394,6 +494,10 @@
 // Second row subnav
 .subnav {
   background: var(--primary-light);
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 
   &__inner {
     max-width: 1280px;

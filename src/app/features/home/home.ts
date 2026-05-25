@@ -1,5 +1,5 @@
 import { Component, signal, OnInit, OnDestroy, inject, PLATFORM_ID } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { environment } from '../../../environments/environment';
 import { Product } from '../../core/models/product.model';
@@ -27,20 +27,45 @@ export class Home implements OnInit, OnDestroy {
   categories = signal<Category[]>([]);
   isLoadingProducts = signal(true);
 
-  constructor(private productService: ProductService, private seo: SeoService) {}
+  mobileSearchQuery = signal('');
+
+  constructor(private productService: ProductService, private seo: SeoService, private router: Router) {}
+
+  onMobileSearchInput(event: Event) {
+    this.mobileSearchQuery.set((event.target as HTMLInputElement).value);
+  }
+
+  onMobileSearch() {
+    const q = this.mobileSearchQuery().trim();
+    if (q) this.router.navigate(['/search'], { queryParams: { q } });
+  }
+
+  getCategoryColor(slug: string): { bg: string; icon: string } {
+    const map: Record<string, { bg: string; icon: string }> = {
+      'kitchenware': { bg: '#FFF0E0', icon: '#E67E22' },
+      'aluminium':   { bg: '#EFEFEF', icon: '#666666' },
+      'plastic':     { bg: '#E0F4F0', icon: '#00897B' },
+      'gift-items':  { bg: '#F5E8FF', icon: '#8E44AD' },
+      'umbrellas':   { bg: '#FDECEA', icon: '#C0392B' },
+      'lighting':    { bg: '#FFF8E0', icon: '#D4A017' },
+      'general':     { bg: '#F0EDE8', icon: '#7D6B52' },
+    };
+    return map[slug] ?? { bg: '#F0F0F0', icon: '#666' };
+  }
 
   banners = [
       {
       title: "Welcome to Ghanim Enterprises",
       subtitle: "Quality household products for every home in Sri Lanka",
       fullBleed: true,
-      imageOnly: true, 
+      imageOnly: true,
       btn: "Shop Now",
       slug: "",
       bg: "#f0f4f8",
-      accent: "#131921",
+      accent: "#112040",
       emoji: "🏪",
-      imageUrl: "https://res.cloudinary.com/dbet3dqvh/image/upload/v1778491073/home_big_banner_ijgslz.webp"
+      imageUrl: "https://ik.imagekit.io/jljsfouwenlblj/products/ChatGPT%20Image%20May%2025,%202026,%2004_16_14%20PM.webp",
+      mobileImageUrl: "https://ik.imagekit.io/jljsfouwenlblj/products/ChatGPT%20Image%20May%2025,%202026,%2004_35_49%20PM.webp"
     },
     {
       title: "Fresh Arrivals in Kitchenware",
@@ -135,8 +160,9 @@ export class Home implements OnInit, OnDestroy {
     // This is what makes SSR valuable for SEO
     this.seo.updateMeta({
       title: 'Quality Home Products in Sri Lanka',
-      description: 'Shop kitchenware, aluminium, plastic, gift items, umbrellas and lighting at best prices in Sri Lanka. Free delivery over Rs. 5000.',
-      keywords: 'kitchenware Sri Lanka, aluminium products, gift items, umbrellas, lighting, wholesale retail'
+      description: 'Shop kitchenware, aluminium, plastic, gift items, umbrellas and lighting at best prices in Sri Lanka. Free delivery over Rs. 10,000.',
+      keywords: 'kitchenware Sri Lanka, aluminium products, gift items, umbrellas, lighting, wholesale retail',
+      canonicalPath: '/'
     });
 
     // Banner slider only in browser
